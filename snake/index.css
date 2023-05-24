@@ -1,0 +1,22 @@
+#player {
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.1s linear;
+    border-radius: 10px;
+}
+
+#food {
+    width: 20px;
+    height: 20px;
+    background-color: green;
+    position: absolute;
+}
+
+body {
+    background-size: 100% 100%;
+}
