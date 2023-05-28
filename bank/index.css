@@ -1,0 +1,11 @@
+body {
+    background: linear-gradient(90deg, #e3ffe7, #d9e7ff);
+}
+
+button {
+    background: linear-gradient(90deg, #e3ffe7, #d9e7ff);
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    font-size: 1.2em;
+    color: #555;
+}
