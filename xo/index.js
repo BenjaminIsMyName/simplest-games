@@ -25,8 +25,8 @@ selectBtnO.onclick = () => {
     players.setAttribute('class', 'players active player')
 }
 
-let playerXIcon = 'fas fa-times',
-    playerOIcon = 'far fa-circle',
+let playerXIcon = 'fas fa-times', // see: https://fontawesome.com/v4/icon/times
+    playerOIcon = 'far fa-circle', // see: https://fontawesome.com/v4/icon/circle-o
     playerSign = 'X',
     runBot = true
 
