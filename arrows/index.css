@@ -1,0 +1,27 @@
+body {
+    overflow: hidden;
+}
+
+#arrowId {
+    top: -1500px;
+    width: 200px;
+    position: absolute;
+    left: 50%;
+}
+
+.animate {
+    animation-name: down;
+    animation-duration: 3s;
+}
+
+@keyframes down {
+    0% {
+        top: 0;
+        transform: translateX(-50%) translateY(-100%);
+    }
+
+    100% {
+        top: 100%;
+        transform: translateX(-50%) translateY(100%);
+    }
+}
