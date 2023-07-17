@@ -1,0 +1,17 @@
+.row {
+    display: flex;
+    gap: 5px;
+}
+
+#container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.letter {
+    padding: 10px;
+    border-radius: 10%;
+    width: 13px;
+}
