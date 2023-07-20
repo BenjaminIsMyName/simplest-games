@@ -1,0 +1,28 @@
+#container {
+    background: linear-gradient(orange, red);
+    width: 500px;
+    height: 400px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    box-shadow: 5px 5px 4px rgb(83, 83, 83);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+#container input {
+    border-radius: 5px;
+    background-color: bisque;
+    border: none;
+    padding: 10px;
+    box-shadow: inset 4px 4px rgb(78, 78, 78);
+}
+
+#result {
+    position: absolute;
+    bottom: 80px;
+}
