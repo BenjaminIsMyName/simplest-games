@@ -3,25 +3,22 @@ body {
 }
 
 #arrowId {
-    top: -100%; /* for the 0.0001 sec there is no animation - hide it */
-    width: 200px;
     position: absolute;
+    width: 200px;
+    top: -100%;
     left: 50%;
-}
-
-.animate {
+    transform: translateX(-50%);
     animation-name: down;
     animation-duration: 3s;
+    animation-iteration-count: infinite;
 }
 
 @keyframes down {
     0% {
-        top: 0;
-        transform: translateX(-50%) translateY(-100%);
+        top: -100%;
     }
 
     100% {
         top: 100%;
-        transform: translateX(-50%) translateY(0%);
     }
 }
