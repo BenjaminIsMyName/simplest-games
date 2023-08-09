@@ -1,0 +1,72 @@
+#player {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200px;
+    transition: all 0.5s;
+}
+
+#playerImage {
+    width: 100%;
+}
+
+body {
+    overflow: hidden;
+    height: 100vh;
+}
+
+.enemies {
+    width: 150px;
+    height: 100px;
+    position: absolute;
+    animation-name: down;
+    animation-duration: 3s;
+    top: -100px;
+}
+
+.bullet {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 1px;
+}
+
+.bulletLeft {
+    left: 23px;
+}
+
+.bulletRight {
+    left: 165px;
+}
+
+.animate {
+    animation-name: shoot;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
+* {
+    user-select: none;
+}
+
+@keyframes shoot {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-100vh);
+    }
+}
+
+@keyframes down {
+    0% {
+        top: -100%;
+    }
+
+    100% {
+        top: 100%;
+    }
+}
