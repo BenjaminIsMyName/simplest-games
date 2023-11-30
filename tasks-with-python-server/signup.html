@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <input type="text" placeholder="Username..." id="username" />
+        <input type="password" placeholder="Password..." id="password" />
+        <button onclick="signup()">SIGN UP</button>
+
+        <a href="login.html">Already have an account? Log in!</a>
+
+
+        <script>
+            async function signup() {
+                let username = document.getElementById('username').value
+                let password = document.getElementById('password').value
+
+                let response = await fetch('http://127.0.0.1:5000/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                    }),
+                })
+
+                let data = await response.json()
+
+                if (data.message == 'Username already exists') {
+                    document.body.innerHTML = 'Error, username already exist!'
+                } else {
+                    location.href = 'login.html'
+                }
+            }
+        </script>
+    </body>
+</html>

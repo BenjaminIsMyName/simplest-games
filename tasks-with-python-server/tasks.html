@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+
+        <input type="text" placeholder="Write your task..." id="task">
+        <button onclick="add()">ADD</button>
+        
+
+        <div id="container"></div>
+            
+
+
+        <script>
+
+            let tasks = localStorage.getItem("tasks")
+
+            if (tasks === null) {
+                location.href = "login.html"
+            }
+
+
+            tasks = JSON.parse(tasks)
+            let div = document.getElementById("container")
+            for (let i=0; i<tasks.length; i++) {
+                div.innerHTML += `<p> ${tasks[i]} <button onclick="edit(${i})"> Edit </button>  <button> Delete </button>    </p> `   
+            }
+
+
+            async function edit(index) {
+
+                let newValue = prompt("Write the edited task: ")
+
+                let username = localStorage.getItem('username')
+                let password = localStorage.getItem('password')
+                div.innerHTML = "Loading..."
+                let response = await fetch('http://127.0.0.1:5000/edittask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        task: newValue,
+                        index: index
+                    }),
+                })
+
+                let data = await response.json()
+                localStorage.setItem("tasks", JSON.stringify(data.tasks))
+                location.reload()
+
+            } 
+
+            async function add() {
+                let task = document.getElementById('task')
+
+                let username = localStorage.getItem('username')
+                let password = localStorage.getItem('password')
+
+                div.innerHTML = "Loading..."
+
+                let response = await fetch('http://127.0.0.1:5000/addtask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        task: task.value
+                    }),
+                })
+
+                let data = await response.json()
+                localStorage.setItem("tasks", JSON.stringify(data.tasks))
+                location.reload()
+
+               
+            }
+
+        </script>
+    </body>
+</html>
