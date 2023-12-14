@@ -24,7 +24,8 @@ function handlePress(e) {
 
     player.style.transform = `translate(${x}%, ${y}%)`
 
-    checkIfAte()
+    // check if the player ate a food after transition is done
+    setInterval(checkIfAte, 200)
 }
 
 function checkIfAte() {

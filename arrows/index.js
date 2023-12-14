@@ -31,30 +31,18 @@ function randomInteger(min, max) {
 window.addEventListener('keydown', checkKey)
 
 function checkKey(info) {
-    if (
-        info.key != 'ArrowLeft' &&
-        info.key != 'ArrowUp' &&
-        info.key != 'ArrowRight' &&
-        info.key != 'ArrowDown'
-    ) {
-        return // not arrow? get out of this function
-    }
-
     let userPicked = 0
+
     if (info.key == 'ArrowLeft') {
         userPicked = 0
-    }
-
-    if (info.key == 'ArrowUp') {
+    } else if (info.key == 'ArrowUp') {
         userPicked = 1
-    }
-
-    if (info.key == 'ArrowRight') {
+    } else if (info.key == 'ArrowRight') {
         userPicked = 2
-    }
-
-    if (info.key == 'ArrowDown') {
+    } else if (info.key == 'ArrowDown') {
         userPicked = 3
+    } else {
+        return // not arrow? get out of this function
     }
 
     if (userPicked == picked) {
