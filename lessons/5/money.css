@@ -1,0 +1,21 @@
+h1 {
+    background-color: red;
+    color: white;
+    width: 400px;
+}
+
+body {
+    background-color: lightgreen;
+}
+
+#middle {
+    background-color: blue;
+    font-size: 40px;
+}
+
+.edge {
+    background-color: black;
+    border-color: yellow;
+    border-width: 5px;
+    border-style: solid;
+}

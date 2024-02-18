@@ -1,0 +1,28 @@
+body {
+    /* background: linear-gradient(red, darkblue);
+    min-height: 100vh; */
+    background-image: url(https://t3.ftcdn.net/jpg/05/85/86/44/360_F_585864419_kgIYUcDQ0yiLOCo1aRjeu7kRxndcoitz.jpg);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    min-height: 100vh;
+}
+
+h1 {
+    color: blue;
+    font-size: 70px;
+}
+
+button {
+    color: white;
+    font-size: 20px;
+    width: 200px;
+    height: 40px;
+}
+
+.add {
+    background-color: green;
+}
+
+.take {
+    background-color: red;
+}

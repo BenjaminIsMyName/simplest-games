@@ -1,0 +1,23 @@
+body {
+    /* הערה חשובה מאוד */
+    background-color: lightcoral;
+}
+
+input {
+    background-color: lightblue;
+    color: green;
+    font-size: 20px;
+    width: 200px;
+    height: 40px;
+    border-color: black;
+    border-width: 2px;
+    border-style: solid;
+}
+
+button {
+    background-color: lightgreen;
+    color: red;
+    font-size: 20px;
+    width: 200px;
+    height: 40px;
+}

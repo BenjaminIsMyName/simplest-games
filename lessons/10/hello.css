@@ -1,0 +1,23 @@
+body {
+    background-color: lightcyan;
+}
+
+h1 {
+    color: blue;
+    font-size: 70px;
+}
+
+button {
+    color: white;
+    font-size: 20px;
+    width: 200px;
+    height: 40px;
+}
+
+#add {
+    background-color: green;
+}
+
+#take {
+    background-color: red;
+}
