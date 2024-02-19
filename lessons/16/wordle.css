@@ -1,0 +1,11 @@
+#container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    width: 150px;
+    gap: 5px;
+}
+
+.letter {
+    padding: 10px;
+    background-color: red;
+}
