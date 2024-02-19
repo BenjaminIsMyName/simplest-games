@@ -1,0 +1,88 @@
+html,
+body {
+    height: 100vh; /* to fix the height of the background */
+}
+
+body {
+    overflow: hidden;
+    background-image: url(background.jpeg);
+    background-size: cover;
+}
+
+#floor {
+    width: 100%;
+    height: 100px;
+    background-image: url(floor.png);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+#player {
+    width: 150px;
+    height: 150px;
+    position: absolute;
+    bottom: 50px;
+    left: 140px;
+}
+
+.jump {
+    animation-name: jump;
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+@keyframes jump {
+    0% {
+        bottom: 50px;
+    }
+    50% {
+        bottom: 500px;
+    }
+    100% {
+        bottom: 50px;
+    }
+}
+
+#enemy {
+    width: 200px;
+    height: 70px;
+    position: absolute;
+    bottom: 50px;
+    right: 0;
+    transform: translateX(100%);
+    animation-name: drive;
+    animation-duration: 1.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@keyframes drive {
+    0% {
+        right: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        right: 100%;
+        transform: translateX(-100%);
+    }
+}
+
+#overId {
+    font-size: 100px;
+    text-align: center;
+    color: red;
+}
+
+#result {
+    font-size: 50px;
+    text-align: center;
+    color: green;
+    font-weight: bold;
+}
+
+#best {
+    font-size: 40px;
+    text-align: center;
+    color: white;
+}
