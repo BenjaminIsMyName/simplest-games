@@ -1,0 +1,125 @@
+#topLeft {
+    background-color: #f00;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    animation-name: moveAround;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease;
+}
+
+@keyframes moveAround {
+    0% {
+        top: 30px;
+        left: 30px;
+    }
+    25% {
+        top: 30px;
+        left: calc(100% - 130px);
+    }
+    50% {
+        top: calc(100% - 130px);
+        left: calc(100% - 130px);
+    }
+    75% {
+        top: calc(100% - 130px);
+        left: 30px;
+    }
+    100% {
+        top: 30px;
+        left: 30px;
+    }
+}
+
+#topRight {
+    background-color: #0f0;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: 30px;
+    right: 30px;
+}
+
+#bottomLeft {
+    background-color: #00f;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+}
+
+#bottomRight {
+    background-color: #ff0;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+}
+
+#center {
+    background-color: #0ff;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    animation-name: moveTinyBit;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease;
+    animation-direction: alternate;
+}
+
+@keyframes moveTinyBit {
+    0% {
+        background-color: #00f;
+        transform: translateX(-50%) translateY(-50%);
+    }
+
+    25% {
+        background-color: #0f0;
+        transform: translateX(100%) translateY(-100%) rotate(90deg);
+    }
+
+    50% {
+        background-color: #f00;
+        transform: translateX(20%) translateY(40%) rotate(180deg);
+    }
+
+    100% {
+        background-color: #ff0;
+        transform: translateX(-20%) translateY(-40%);
+    }
+}
+
+body {
+    animation-name: changeColor;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-direction: alternate;
+}
+
+@keyframes changeColor {
+    0% {
+        background-color: #f00;
+    }
+    25% {
+        background-color: #0f0;
+    }
+    50% {
+        background-color: #00f;
+    }
+    75% {
+        background-color: #ff0;
+    }
+    100% {
+        background-color: #0ff;
+    }
+}
