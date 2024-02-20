@@ -32,7 +32,7 @@ var planet = 'כדור הארץ'
 let continent = 'אסיה'
 
 // let const = 'לא עובד'
-// let let = 'עובד'
+// let let = 'לא עובד'
 // let if = 'לא עובד'
 // let else = 'לא עובד'
 // let return = 'לא עובד'
