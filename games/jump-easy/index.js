@@ -1,4 +1,4 @@
-window.addEventListener('keydown', checkKey)
+addEventListener('keydown', checkKey)
 let player = document.getElementById('player')
 let enemy = document.getElementById('enemy')
 let scoreElement = document.getElementById('scoreId')

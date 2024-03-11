@@ -28,7 +28,7 @@ function randomInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-window.addEventListener('keydown', checkKey)
+addEventListener('keydown', checkKey)
 
 function checkKey(info) {
     let userPicked = 0

@@ -1,7 +1,8 @@
-window.addEventListener('keydown', checkKey)
 let player = document.getElementById('player')
 
 let x = 0
+
+addEventListener('keydown', checkKey)
 
 function checkKey(info) {
     if (info.key == 'ArrowRight') {

@@ -4,7 +4,7 @@ let numbers = document.getElementById('numbers')
 let total = document.getElementById('total')
 let ate = []
 
-document.addEventListener('keydown', handlePress)
+addEventListener('keydown', handlePress)
 
 let x = -50 // default x position of the player (in %)
 let y = -50 // default y position of the player (in %)

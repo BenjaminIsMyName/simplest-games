@@ -1,4 +1,4 @@
-document.addEventListener('keydown', check)
+addEventListener('keydown', check)
 
 let num = document.getElementById('num')
 

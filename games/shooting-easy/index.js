@@ -13,7 +13,7 @@ if (scoreFromStorage) {
     scoreElement.innerHTML = 'Score: ' + score
 }
 
-document.addEventListener('keydown', checkKey)
+addEventListener('keydown', checkKey)
 
 let x = 0
 let didShoot = false
