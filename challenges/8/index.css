@@ -1,0 +1,16 @@
+input {
+    width: 159px;
+    height: 10px;
+}
+
+button {
+    background-color: green;
+    color: white;
+    width: 53px;
+    border: none;
+    border-radius: 3px;
+}
+
+.small {
+    width: 40px;
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>Question 1</h1>
+        <h2>Who is the current president of the USA?</h2>
+
+        <input type="radio" name="answer" value="A" /> A. Donald Trump
+        <br />
+        <input type="radio" name="answer" value="B" /> B. Joe Biden
+        <br />
+        <input type="radio" name="answer" value="C" /> C. Barack Obama
+        <br />
+        <input type="radio" name="answer" value="D" /> D. George W. Bush
+        <br />
+        <br />
+        <button type="button" onclick="sendSelected()">Submit</button>
+
+        <script>
+            console.log('hey')
+            async function sendSelected() {
+                const answer = document.querySelector(
+                    'input[name="answer"]:checked'
+                )
+
+                if (answer) {
+                    const data = { answer: answer.value }
+
+                    const response = await fetch('/q1_ans', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    })
+
+                    const resData = await response.text()
+
+                    if (resData === 'You have already answered this question') {
+                        alert(resData)
+                        return
+                    }
+                    localStorage.setItem('q1', resData)
+                    window.location.href = '/q2'
+                } else {
+                    alert('Please select an answer.')
+                }
+            }
+        </script>
+    </body>
+</html>

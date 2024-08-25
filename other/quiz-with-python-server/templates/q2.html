@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>Question 2</h1>
+        <h2>How many Jews died in the holocaust?</h2>
+
+        <input type="radio" name="answer" value="A" /> A. 6 million
+        <br />
+        <input type="radio" name="answer" value="B" /> B. 5 million
+        <br />
+        <input type="radio" name="answer" value="C" /> C. 0
+        <br />
+        <input type="radio" name="answer" value="D" /> D. 1 million
+        <br />
+        <br />
+        <button type="button" onclick="sendSelected()">Submit</button>
+
+        <script>
+            console.log('hey')
+            async function sendSelected() {
+                const answer = document.querySelector(
+                    'input[name="answer"]:checked'
+                )
+
+                if (answer) {
+                    const data = { answer: answer.value }
+
+                    const response = await fetch('/q2_ans', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    })
+
+                    const resData = await response.text()
+
+                    if (resData === 'You have already answered this question') {
+                        alert(resData)
+                        return
+                    }
+                    localStorage.setItem('q2', resData)
+                    window.location.href = '/result'
+                } else {
+                    alert('Please select an answer.')
+                }
+            }
+        </script>
+    </body>
+</html>
