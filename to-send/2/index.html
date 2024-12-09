@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            #player {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 200px;
+                transition: all 0.5s;
+            }
+
+            #playerImage {
+                width: 100%;
+                background-color: blue;
+                height: 100px;
+            }
+
+            body {
+                overflow: hidden;
+                height: 100vh;
+                background: radial-gradient(
+                    circle,
+                    rgb(255, 251, 0) 0%,
+                    rgba(255, 255, 255, 1) 100%
+                );
+                min-height: 100vh;
+            }
+
+            .enemies {
+                width: 150px;
+                height: 100px;
+                position: absolute;
+                animation-name: down;
+                animation-duration: 3s;
+                top: -100px;
+                background-color: red;
+            }
+
+            .bullet {
+                width: 10px;
+                height: 10px;
+                background-color: red;
+                border-radius: 50%;
+                position: absolute;
+                top: 1px;
+            }
+
+            .bulletLeft {
+                left: 23px;
+            }
+
+            .bulletRight {
+                left: 165px;
+            }
+
+            .animate {
+                animation-name: shoot;
+                animation-duration: 1s;
+                animation-fill-mode: forwards;
+            }
+
+            * {
+                user-select: none;
+            }
+
+            @keyframes shoot {
+                0% {
+                    transform: translateY(0);
+                }
+
+                100% {
+                    transform: translateY(-100vh);
+                }
+            }
+
+            @keyframes down {
+                0% {
+                    top: -100px;
+                }
+
+                100% {
+                    top: 100%;
+                }
+            }
+        </style>
+    </head>
+    <body dir="rtl" onclick="shoot()">
+        <h1>
+            הוראות: זזים עם החצים במקלדת, ויורים על ידי לחיצה על המסך עם העכבר
+        </h1>
+        <h2>ניקוד: <span id="score-id">0</span></h2>
+        <p></p>
+        <div id="player">
+            <div id="playerImage"></div>
+        </div>
+
+        <div id="enemies"></div>
+
+        <script>
+            let score = 0
+            let scoreId = document.getElementById('score-id')
+
+            let player = document.getElementById('player')
+
+            let x = 0
+
+            addEventListener('keydown', checkKey)
+
+            function checkKey(info) {
+                console.log(info.key)
+                if (info.key == 'ArrowRight') {
+                    x = x + 150
+                } else if (info.key == 'ArrowLeft') {
+                    x = x - 150
+                }
+
+                player.style.left = x + 'px'
+            }
+
+            setInterval(createEnemy, 500)
+
+            function createEnemy() {
+                // if we use innerHTML += then we will recreate all the images every time we add an image, which causes problems
+                let enemy = document.createElement('div')
+                enemy.style.left = randomInteger(0, 100) + '%'
+                enemy.className = 'enemies'
+
+                document.getElementById('enemies').append(enemy)
+                setTimeout(function () {
+                    enemy.remove()
+                }, 3000) // same as the animation duration in CSS
+            }
+
+            function randomInteger(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min
+            }
+
+            function shoot() {
+                bulletLeft.classList.add('animate')
+                bulletRight.classList.add('animate')
+                firedBullets.push(bulletLeft)
+                firedBullets.push(bulletRight)
+                createBullets()
+                playSound()
+            }
+
+            function playSound() {
+                const audioContext = new (window.AudioContext ||
+                    window.webkitAudioContext)()
+                const bufferSize = 4096
+                const buffer = audioContext.createBuffer(
+                    1,
+                    bufferSize,
+                    audioContext.sampleRate
+                )
+                const data = buffer.getChannelData(0)
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1 // Generate random noise
+                }
+
+                const source = audioContext.createBufferSource()
+                source.buffer = buffer
+                source.connect(audioContext.destination)
+                source.start()
+
+                setTimeout(() => {
+                    source.stop()
+                    audioContext.close()
+                }, 100) // Adjust the duration as needed
+            }
+
+            let bulletLeft
+            let bulletRight
+
+            let firedBullets = []
+
+            createBullets()
+
+            function createBullets() {
+                bulletLeft = document.createElement('div')
+                bulletLeft.className = 'bullet bulletLeft'
+                player.append(bulletLeft)
+                bulletRight = document.createElement('div')
+                bulletRight.className = 'bullet bulletRight'
+                player.append(bulletRight)
+            }
+
+            let checkHitInterval = setInterval(checkHit, 1)
+
+            function checkHit() {
+                let enemies = document.getElementsByClassName('enemies')
+                for (let i = 0; i < enemies.length; i++) {
+                    if (elementsOverlap(player, enemies[i])) {
+                        clearInterval(checkHitInterval)
+                        alert('נפסלת! ניקוד: ' + score)
+                        location.reload()
+                    }
+
+                    for (let j = 0; j < firedBullets.length; j++) {
+                        if (elementsOverlap(firedBullets[j], enemies[i])) {
+                            enemies[i].remove()
+                            firedBullets[j].remove()
+                            firedBullets.splice(j, 1)
+                            score++
+                            scoreId.innerText = score
+                        }
+                    }
+                }
+            }
+
+            function elementsOverlap(el1, el2) {
+                const domRect1 = el1.getBoundingClientRect()
+                const domRect2 = el2.getBoundingClientRect()
+
+                return !(
+                    domRect1.top > domRect2.bottom ||
+                    domRect1.right < domRect2.left ||
+                    domRect1.bottom < domRect2.top ||
+                    domRect1.left > domRect2.right
+                )
+            }
+        </script>
+    </body>
+</html>
