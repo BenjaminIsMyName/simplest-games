@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Simple Calculator</title>
+        <link rel="stylesheet" href="index.css" />
+    </head>
+    <body>
+        <div id="container">
+            <div></div> <!-- הוסף תעודת זהות - display -->
+            <button onclick="clearCalc()">C</button> <!-- הוסף קלאס - operator -->
+            <button onclick="numberClicked(7)">7</button>
+            <button onclick="numberClicked(8)">8</button>
+            <button onclick="numberClicked(9)">9</button>
+            <button onclick="operatorClicked('/')">/</button> <!-- הוסף קלאס - operator -->
+            <button onclick="numberClicked(4)">4</button>
+            <button onclick="numberClicked(5)">5</button>
+            <button onclick="numberClicked(6)">6</button>
+            <button onclick="operatorClicked('*')">*</button> <!-- הוסף קלאס - operator -->
+            <button onclick="numberClicked(1)">1</button>
+            <button onclick="numberClicked(2)">2</button>
+            <button onclick="numberClicked(3)">3</button>
+            <button onclick="operatorClicked('-')">-</button> <!-- הוסף קלאס - operator -->
+            <button onclick="numberClicked(0)">0</button>
+            <button onclick="dotClicked()">.</button>
+            <button onclick="equalClicked()">=</button> <!-- הוסף קלאס -->
+            <button onclick="operatorClicked('+')">+</button> <!-- הוסף קלאס - operator -->
+        </div>
+
+        <script src="index.js"></script>
+    </body>
+</html>
