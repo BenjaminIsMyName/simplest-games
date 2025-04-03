@@ -2,6 +2,8 @@ const gameArea = document.getElementById('gameArea')
 const player = document.getElementById('player')
 const startBtn = document.getElementById('startBtn')
 let gameInterval, alienInterval
+let gameActive = false
+let gameStartTime
 
 function createBullet() {
     const bullet = document.createElement('div')
@@ -40,9 +42,18 @@ function createAlien() {
 
 function moveAlien(alien) {
     const interval = setInterval(() => {
-        alien.style.top = alien.offsetTop + 5 + 'px'
+        // Increase alien speed over time.
+        let elapsedSeconds = (Date.now() - gameStartTime) / 1000
+        let speed = 5 + elapsedSeconds // speed increases over time
+        alien.style.top = alien.offsetTop + speed + 'px'
+
         if (alien.offsetTop > window.innerHeight) {
             alien.remove()
+            clearInterval(interval)
+        }
+        // If the alien hits the player, trigger game over.
+        if (gameActive && isColliding(alien, player)) {
+            gameOver()
             clearInterval(interval)
         }
     }, 50)
@@ -58,9 +69,24 @@ function isColliding(a, b) {
 }
 
 function startGame() {
+    // Reset game state
+    gameActive = true
+    gameStartTime = Date.now()
     startBtn.style.display = 'none'
     gameInterval = setInterval(() => createBullet(), 500)
     alienInterval = setInterval(() => createAlien(), 1000)
+}
+
+function gameOver() {
+    if (!gameActive) return
+    gameActive = false
+    clearInterval(gameInterval)
+    clearInterval(alienInterval)
+    // Remove any remaining aliens and bullets
+    document.querySelectorAll('.alien').forEach(alien => alien.remove())
+    document.querySelectorAll('.bullet').forEach(bullet => bullet.remove())
+    alert('Game Over!')
+    startBtn.style.display = 'block'
 }
 
 document.addEventListener('mousemove', e => {
