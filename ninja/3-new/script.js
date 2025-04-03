@@ -96,13 +96,43 @@ function startGame() {
 function gameOver() {
     if (!gameActive) return
     gameActive = false
-    // Stop alien creation.
     clearInterval(alienInterval)
-    // Remove any remaining aliens and bullets
     document.querySelectorAll('.alien').forEach(alien => alien.remove())
     document.querySelectorAll('.bullet').forEach(bullet => bullet.remove())
-    alert('Game Over!')
+    // Calculate score as elapsed seconds
+    const score = Math.floor((Date.now() - gameStartTime) / 1000)
+    showGameOverScreen(score)
     startBtn.style.display = 'block'
+}
+
+function showGameOverScreen(score) {
+    let gameOverScreen = document.getElementById('gameOverScreen')
+    if (!gameOverScreen) {
+        gameOverScreen = document.createElement('div')
+        gameOverScreen.id = 'gameOverScreen'
+        gameOverScreen.innerHTML = `
+            <h1>Game Over</h1>
+            <h2>Your Score: <b id="score">${score}</b></h2>
+            <span id="restartPrompt">Restart Game</span>
+        `
+        // Explicitly set display to flex when creating the element.
+        gameOverScreen.style.display = 'flex'
+        gameArea.appendChild(gameOverScreen)
+        gameOverScreen.addEventListener('click', () => {
+            restartGame()
+        })
+    } else {
+        gameOverScreen.querySelector('#score').textContent = score
+        gameOverScreen.style.display = 'flex'
+    }
+}
+
+function restartGame() {
+    const gameOverScreen = document.getElementById('gameOverScreen')
+    if (gameOverScreen) {
+        gameOverScreen.style.display = 'none'
+    }
+    startGame()
 }
 
 document.addEventListener('mousemove', e => {

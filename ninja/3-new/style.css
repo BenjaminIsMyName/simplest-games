@@ -49,3 +49,36 @@ body {
     font-size: 24px;
     z-index: 2;
 }
+
+#gameOverScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: sans-serif;
+    z-index: 4;
+}
+
+#gameOverScreen h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+#gameOverScreen h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+#gameOverScreen span {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px 20px;
+    border: 2px solid white;
+}
