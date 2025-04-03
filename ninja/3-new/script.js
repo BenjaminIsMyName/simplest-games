@@ -66,11 +66,13 @@ function moveAlien(alien) {
 }
 
 function isColliding(a, b) {
+    const rectA = a.getBoundingClientRect()
+    const rectB = b.getBoundingClientRect()
     return !(
-        a.offsetTop + a.offsetHeight < b.offsetTop ||
-        a.offsetTop > b.offsetTop + b.offsetHeight ||
-        a.offsetLeft + a.offsetWidth < b.offsetLeft ||
-        a.offsetLeft > b.offsetLeft + b.offsetWidth
+        rectA.right < rectB.left ||
+        rectA.left > rectB.right ||
+        rectA.bottom < rectB.top ||
+        rectA.top > rectB.bottom
     )
 }
 
