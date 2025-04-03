@@ -9,11 +9,13 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+
 #gameArea {
     position: relative;
     width: 100vw;
     height: 100vh;
 }
+
 #player {
     position: absolute;
     bottom: 10px;
@@ -21,15 +23,16 @@ body {
     transform: translateX(-50%);
     width: 140px;
     height: 140px;
-    background: url('player.png') no-repeat center;
-    background-size: contain;
+    user-select: none;
 }
+
 .bullet {
     position: absolute;
     width: 5px;
     height: 20px;
     background: yellow;
 }
+
 .alien {
     position: absolute;
     width: 100px;
@@ -37,6 +40,7 @@ body {
     background: url('alien.png') no-repeat center;
     background-size: contain;
 }
+
 #startBtn {
     position: absolute;
     top: 50%;
