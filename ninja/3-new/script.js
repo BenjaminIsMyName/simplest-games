@@ -1,11 +1,13 @@
 const gameArea = document.getElementById('gameArea')
 const player = document.getElementById('player')
 const startBtn = document.getElementById('startBtn')
-let gameInterval, alienInterval
+let alienInterval
 let gameActive = false
 let gameStartTime
 
 function createBullet() {
+    // Only shoot if the game is active
+    if (!gameActive) return
     const bullet = document.createElement('div')
     bullet.className = 'bullet'
 
@@ -81,14 +83,14 @@ function startGame() {
     gameActive = true
     gameStartTime = Date.now()
     startBtn.style.display = 'none'
-    gameInterval = setInterval(() => createBullet(), 500)
+    // Start alien creation only.
     alienInterval = setInterval(() => createAlien(), 1000)
 }
 
 function gameOver() {
     if (!gameActive) return
     gameActive = false
-    clearInterval(gameInterval)
+    // Stop alien creation.
     clearInterval(alienInterval)
     // Remove any remaining aliens and bullets
     document.querySelectorAll('.alien').forEach(alien => alien.remove())
@@ -99,6 +101,18 @@ function gameOver() {
 
 document.addEventListener('mousemove', e => {
     player.style.left = e.clientX - player.offsetWidth / 2 + 'px'
+})
+
+// Added event listener: shoot bullet on gameArea click.
+gameArea.addEventListener('click', () => {
+    if (gameActive) createBullet()
+})
+
+// Added event listener: shoot bullet on space bar press.
+document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && gameActive) {
+        createBullet()
+    }
 })
 
 startBtn.addEventListener('click', startGame)
