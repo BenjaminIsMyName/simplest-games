@@ -107,24 +107,8 @@ function gameOver() {
 
 function showGameOverScreen(score) {
     let gameOverScreen = document.getElementById('gameOverScreen')
-    if (!gameOverScreen) {
-        gameOverScreen = document.createElement('div')
-        gameOverScreen.id = 'gameOverScreen'
-        gameOverScreen.innerHTML = `
-            <h1>Game Over</h1>
-            <h2>Your Score: <b id="score">${score}</b></h2>
-            <span id="restartPrompt">Restart Game</span>
-        `
-        // Explicitly set display to flex when creating the element.
-        gameOverScreen.style.display = 'flex'
-        gameArea.appendChild(gameOverScreen)
-        gameOverScreen.addEventListener('click', () => {
-            restartGame()
-        })
-    } else {
-        gameOverScreen.querySelector('#score').textContent = score
-        gameOverScreen.style.display = 'flex'
-    }
+    gameOverScreen.querySelector('#score').textContent = score
+    gameOverScreen.style.display = 'flex'
 }
 
 function restartGame() {
