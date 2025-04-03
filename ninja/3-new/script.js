@@ -5,6 +5,8 @@ let alienInterval
 let gameActive = false
 let gameStartTime
 
+const shootSound = new Audio('shoot.wav')
+
 function createBullet() {
     // Only shoot if the game is active
     if (!gameActive) return
@@ -14,6 +16,10 @@ function createBullet() {
     // Get bounding rects for positioning relative to gameArea.
     let gameAreaRect = gameArea.getBoundingClientRect()
     let playerRect = player.getBoundingClientRect()
+
+    // Play shooting sound
+    shootSound.currentTime = 0 // Reset sound to start
+    shootSound.play()
 
     bullet.style.left =
         playerRect.left - gameAreaRect.left + playerRect.width / 2 - 2.5 + 'px'
