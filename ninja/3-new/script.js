@@ -8,8 +8,14 @@ let gameStartTime
 function createBullet() {
     const bullet = document.createElement('div')
     bullet.className = 'bullet'
-    bullet.style.left = player.offsetLeft + player.offsetWidth / 2 - 2.5 + 'px'
-    bullet.style.top = player.offsetTop + 'px'
+
+    // Get bounding rects for positioning relative to gameArea.
+    let gameAreaRect = gameArea.getBoundingClientRect()
+    let playerRect = player.getBoundingClientRect()
+
+    bullet.style.left =
+        playerRect.left - gameAreaRect.left + playerRect.width / 2 - 2.5 + 'px'
+    bullet.style.top = playerRect.top - gameAreaRect.top + 'px'
     gameArea.appendChild(bullet)
     moveBullet(bullet)
 }
