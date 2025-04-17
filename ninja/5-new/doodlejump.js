@@ -40,8 +40,8 @@ let gameOver = false
 
 window.onload = function () {
     board = document.getElementById('board') // Initialize the board variable
-    const startButton = document.getElementById('start-game')
-    const playerNameInput = document.getElementById('player-name')
+    const startButton = document.querySelector('#player-input button')
+    const playerNameInput = document.querySelector('#player-input input')
     const playerInputDiv = document.getElementById('player-input')
 
     startButton.addEventListener('click', function () {
