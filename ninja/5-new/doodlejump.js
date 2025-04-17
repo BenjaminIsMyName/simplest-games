@@ -1,3 +1,5 @@
+let playerName = ''
+
 //board
 let board
 let boardWidth = 360
@@ -37,16 +39,28 @@ let maxScore = 0
 let gameOver = false
 
 window.onload = function () {
-    board = document.getElementById('board')
+    board = document.getElementById('board') // Initialize the board variable
+    const startButton = document.getElementById('start-game')
+    const playerNameInput = document.getElementById('player-name')
+    const playerInputDiv = document.getElementById('player-input')
+
+    startButton.addEventListener('click', function () {
+        playerName = playerNameInput.value.trim()
+        if (playerName) {
+            playerInputDiv.style.display = 'none'
+            board.style.display = 'block'
+            startGame()
+        } else {
+            alert('Please enter your name to start the game.')
+        }
+    })
+}
+
+function startGame() {
     board.height = boardHeight
     board.width = boardWidth
-    context = board.getContext('2d') //used for drawing on the board
+    context = board.getContext('2d')
 
-    //draw doodler
-    // context.fillStyle = "green";
-    // context.fillRect(doodler.x, doodler.y, doodler.width, doodler.height);
-
-    //load images
     doodlerRightImg = new Image()
     doodlerRightImg.src = './doodler-right.png'
     doodler.img = doodlerRightImg
@@ -99,6 +113,12 @@ function update() {
         doodler.width,
         doodler.height
     )
+
+    // Display player name above doodler
+    context.fillStyle = 'black'
+    context.font = '16px sans-serif'
+    context.textAlign = 'center'
+    context.fillText(playerName, doodler.x + doodler.width / 2, doodler.y - 10)
 
     //platforms
     for (let i = 0; i < platformArray.length; i++) {
