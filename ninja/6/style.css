@@ -1,0 +1,15 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+#box {
+    position: absolute;
+    width: 10vw;
+    height: 10vw;
+    min-width: 50px;
+    min-height: 50px;
+    cursor: pointer;
+    transition: all 0.3s linear;
+    font-size: 1vw;
+}
