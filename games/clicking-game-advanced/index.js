@@ -2,13 +2,15 @@ function randomInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
+let time = 5
+let score = 0
+
 let randomNumber = document.getElementById('randomNumber')
 let scoreElement = document.getElementById('score')
-let picked = 1
-let score = 0
-let interval
+let picked = undefined
+let interval = undefined
 let timerId = document.getElementById('timerId')
-let timeLeft = 5
+let timeLeft = time
 
 pick()
 
@@ -17,20 +19,22 @@ function check(clicked) {
         score = score + 1
         pick()
     } else {
-        score = 0
+        alert('You lost because you clicked wrong! Your score is: ' + score)
+        window.location.reload()
     }
 
     scoreElement.innerHTML = 'Score: ' + score
 }
 
 function pick() {
+    scoreElement.innerHTML = 'Score: ' + score
     picked = randomInteger(1, 3)
     randomNumber.innerHTML = picked
     if (interval) {
         clearInterval(interval)
     }
     interval = setInterval(timer, 1000)
-    timeLeft = 5
+    timeLeft = time
     timerId.innerHTML = 'Time left: ' + timeLeft
 
     // Increase the speed of the buttons every 5 points
@@ -54,10 +58,7 @@ function timer() {
     timerId.innerHTML = 'Time left: ' + timeLeft
 
     if (timeLeft == 0) {
-        alert('You lostttttttttttttttttttttttttttttttttttttttt')
-        score = 0
-        scoreElement.innerHTML = 'Score: ' + score
-        timeLeft = 5
-        timerId.innerHTML = 'Time left: ' + timeLeft
+        alert('You lost because of time! Your score is: ' + score)
+        window.location.reload()
     }
 }
