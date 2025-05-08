@@ -50,8 +50,8 @@ function timer() {
 }
 
 function moveBox(box) {
-    const x = randomInteger(0, window.innerWidth - 50)
-    const y = randomInteger(0, window.innerHeight - 50)
+    const x = randomInteger(0, window.innerWidth - 550)
+    const y = randomInteger(0, window.innerHeight - 550)
     box.style.left = `${x}px`
     box.style.top = `${y}px`
 }
