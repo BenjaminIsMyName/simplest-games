@@ -12,15 +12,25 @@ let lastMoveTime = Date.now()
 
 let buttons = document.querySelectorAll('button')
 
+let clickAudio = new Audio('game-click.wav')
+let overAudio = new Audio('game-over.wav')
+
 pick()
 moveBoxes()
 
 function check(clicked) {
     if (picked == clicked) {
+        clickAudio.pause()
+        clickAudio.currentTime = 0
+        clickAudio.play()
         score = score + 1
         pick()
         adjustMoveBoxesSpeed()
     } else {
+        overAudio.pause()
+        overAudio.currentTime = 0
+        overAudio.volume = 0.1
+        overAudio.play()
         alert('You lost because you clicked wrong! Your score is: ' + score)
         window.location.reload()
     }
