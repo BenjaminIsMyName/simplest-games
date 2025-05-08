@@ -1,5 +1,5 @@
-let time = 10
-let score = 0
+// TODO: Create a variable called `time` and set it to 10
+// TODO: Create a variable called `score` and set it to 0
 let picked = false
 let timerInterval = false
 
