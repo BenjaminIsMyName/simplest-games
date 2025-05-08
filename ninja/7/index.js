@@ -1,10 +1,11 @@
 let time = 10
 let score = 0
+let picked = false
+let timerInterval = false
+
 let moveBoxesInterval = Math.max(500, 3000 - score * 100)
 let randomNumber = document.getElementById('randomNumber')
 let scoreElement = document.getElementById('score')
-let picked = undefined
-let timerInterval = undefined
 let timerId = document.getElementById('timerId')
 let timeLeft = time
 let lastMoveTime = Date.now()
@@ -50,7 +51,7 @@ function timer() {
 
 function moveBox(box) {
     const x = randomInteger(0, window.innerWidth - 50)
-    const y = randomInteger(0, window.innerWidth - 50)
+    const y = randomInteger(0, window.innerHeight - 50)
     box.style.left = `${x}px`
     box.style.top = `${y}px`
 }
