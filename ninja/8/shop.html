@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Mini Checkout</title>
+        <style>
+            /* simple, nicer look */
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-family: sans-serif;
+                background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
+                color: #fff;
+            }
+            table {
+                border-collapse: collapse;
+                font-size: 1.1rem;
+            }
+            td,
+            th {
+                padding: 0.4rem 1.2rem;
+            }
+            th {
+                font-weight: 600;
+            }
+            button {
+                padding: 0.4rem 1.2rem;
+                border: none;
+                border-radius: 20px;
+                cursor: pointer;
+                font-weight: bold;
+                background: linear-gradient(90deg, #ff8a00, #e52e71);
+                color: #fff;
+                transition: transform 0.1s;
+            }
+            button:active {
+                transform: scale(0.95);
+            }
+        </style>
+    </head>
+    <body>
+        <h2>Simple Shop</h2>
+
+        <table>
+            <tr>
+                <th>Item</th>
+                <th>₪</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>Apple</td>
+                <td id="p1">5</td>
+                <td><button onclick="addApple()">Add</button></td>
+            </tr>
+            <tr>
+                <td>Bread</td>
+                <td id="p2">12</td>
+                <td><button onclick="addBread()">Add</button></td>
+            </tr>
+            <tr>
+                <td>Milk</td>
+                <td id="p3">8</td>
+                <td><button onclick="addMilk()">Add</button></td>
+            </tr>
+        </table>
+
+        <h3 id="totalLine">Cart total: 0 ₪</h3>
+        <button onclick="removeLast()">Remove last</button>
+
+        <script>
+            /* ---------- cached DOM refs ---------- */
+            const price1 = document.getElementById('p1')
+            const price2 = document.getElementById('p2')
+            const price3 = document.getElementById('p3')
+            const totalEl = document.getElementById('totalLine')
+
+            let total = 0
+            let last = 0 // keeps last added amount
+
+            /* STUDENTS: write three almost-identical “add” funcs */
+            function addApple() {
+                last = Number(price1.textContent)
+                total += last
+                updateTotal()
+            }
+            function addBread() {
+                last = Number(price2.textContent)
+                total += last
+                updateTotal()
+            }
+            function addMilk() {
+                last = Number(price3.textContent)
+                total += last
+                updateTotal()
+            }
+
+            /* STUDENTS: finish this – make sure total never goes negative */
+            function removeLast() {
+                total -= last
+                if (total < 0) total = 0 // optional safety
+                last = 0
+                updateTotal()
+            }
+
+            /* helper (students don’t edit) */
+            function updateTotal() {
+                totalEl.textContent = 'Cart total: ' + total + ' ₪'
+            }
+        </script>
+    </body>
+</html>
