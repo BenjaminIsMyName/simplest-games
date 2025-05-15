@@ -31,11 +31,16 @@
             img {
                 width: 100%;
                 aspect-ratio: 1/1;
+                transition: all 0.5s ease-in-out;
+            }
+            img:hover {
+                transform: scale(1.05);
             }
             #products {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 50px;
+                justify-content: center;
             }
             button {
                 padding: 0.4rem 1.2rem;
@@ -50,10 +55,17 @@
             button:active {
                 transform: scale(0.95);
             }
+            #clear {
+                position: fixed;
+                left: 10px;
+                top: 10px;
+                background: linear-gradient(90deg, #ff00b7, #e8134f);
+            }
         </style>
     </head>
     <body>
-        <h1 id="total">Select...</h1>
+        <button id="clear" onclick="remove()">Clear</button>
+        <h1 id="total">0</h1>
         <br />
         <br />
         <br />
@@ -82,14 +94,18 @@
             let total = document.getElementById('total')
 
             function addMilk() {
-                total.innerHTML = 'You selected: Milk (4$)'
+                total.innerHTML = Number(total.innerHTML) + 4
             }
 
             function addBread() {
-                total.innerHTML = 'You selected: Bread (5$)'
+                total.innerHTML = Number(total.innerHTML) + 5
             }
             function addWater() {
-                total.innerHTML = 'You selected: Water (3$)'
+                total.innerHTML = Number(total.innerHTML) + 3
+            }
+
+            function remove() {
+                total.innerHTML = 0
             }
         </script>
     </body>
