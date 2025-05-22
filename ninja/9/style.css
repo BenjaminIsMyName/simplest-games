@@ -33,7 +33,7 @@ img:hover {
     display: flex;
     flex-wrap: wrap;
     gap: 50px;
-    justify-content: center;
+    width: 100%;
 }
 button {
     padding: 0.4rem 1.2rem;
