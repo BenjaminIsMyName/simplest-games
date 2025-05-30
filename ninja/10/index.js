@@ -367,23 +367,20 @@ function ThemeManager() {
     handleInteractions()
 }
 
+function arrowPress(event) {
+    if (event.key === 'ArrowLeft') {
+        game.move('left')
+    } else if (event.key === 'ArrowUp') {
+        game.move('up')
+    } else if (event.key === 'ArrowRight') {
+        game.move('right')
+    } else if (event.key === 'ArrowDown') {
+        game.move('down')
+    }
+}
+
 function handleInteractions() {
-    document.addEventListener('keydown', event => {
-        switch (event.key) {
-            case 'ArrowLeft':
-                game.move('left')
-                break
-            case 'ArrowUp':
-                game.move('up')
-                break
-            case 'ArrowRight':
-                game.move('right')
-                break
-            case 'ArrowDown':
-                game.move('down')
-                break
-        }
-    })
+    document.addEventListener('keydown', arrowPress)
 
     const SWIPE_MOVEMENT_THRESHOLD = 20
     const SWIPE_TIME_LIMIT = 300
