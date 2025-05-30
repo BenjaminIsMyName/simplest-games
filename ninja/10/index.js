@@ -94,6 +94,11 @@ function Game2048(_size) {
             this.addRandomTile()
             this.render()
         }
+        // Alert if no moves remain.
+        if (!this.hasMoves()) {
+            this.gameOver = true
+            alert('Game Over')
+        }
     }
 
     // Shift and merge all rows to the left
@@ -286,6 +291,25 @@ function Game2048(_size) {
         )
 
         confetti()
+    }
+
+    Game2048.prototype.hasMoves = function () {
+        for (let r = 0; r < this.size; r++) {
+            for (let c = 0; c < this.size; c++) {
+                if (this.grid[r][c].value === 0) return true
+                if (
+                    c < this.size - 1 &&
+                    this.grid[r][c].value === this.grid[r][c + 1].value
+                )
+                    return true
+                if (
+                    r < this.size - 1 &&
+                    this.grid[r][c].value === this.grid[r + 1][c].value
+                )
+                    return true
+            }
+        }
+        return false
     }
 }
 
