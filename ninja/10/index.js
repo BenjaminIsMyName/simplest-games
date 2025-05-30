@@ -3,6 +3,8 @@ import confetti from 'https://cdn.skypack.dev/canvas-confetti'
 const GRID_SIZE = 4
 const WINNING_NUMBER = 2048
 
+const gameOverSound = new Audio('game-over.wav')
+
 function Game2048(_size) {
     this.size = _size
     this.score = 0
@@ -97,7 +99,8 @@ function Game2048(_size) {
         // Alert if no moves remain.
         if (!this.hasMoves()) {
             this.gameOver = true
-            alert('Game Over')
+            gameOverSound.volume = 0.1
+            gameOverSound.play()
         }
     }
 
