@@ -3,7 +3,7 @@ import confetti from 'https://cdn.skypack.dev/canvas-confetti'
 const GRID_SIZE = 4
 const WINNING_NUMBER = 2048
 
-const gameOverSound = new Audio('game-over.wav')
+// ⚠️⚠️⚠️ צרו כאן צליל של סיום המשחק ⚠️⚠️⚠️⚠️
 
 function Game2048(_size) {
     this.size = _size
@@ -98,9 +98,7 @@ function Game2048(_size) {
         }
         // Game over if no moves remain
         if (!this.hasMoves()) {
-            this.gameOver = true
-            gameOverSound.volume = 0.1
-            gameOverSound.play()
+            // ⚠️⚠️⚠️ הפעילו את הצליל של סיום המשחק ⚠️⚠️⚠️⚠️
         }
     }
 
@@ -372,11 +370,8 @@ function arrowPress(event) {
         game.move('left')
     } else if (event.key === 'ArrowUp') {
         game.move('up')
-    } else if (event.key === 'ArrowRight') {
-        game.move('right')
-    } else if (event.key === 'ArrowDown') {
-        game.move('down')
     }
+    // ⚠️⚠️⚠️ תוסיפו כאן אפשרות לזוז ימינה ולמטה ⚠️⚠️⚠️⚠️
 }
 
 function handleInteractions() {
