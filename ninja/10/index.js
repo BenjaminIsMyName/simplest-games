@@ -96,7 +96,7 @@ function Game2048(_size) {
             this.addRandomTile()
             this.render()
         }
-        // Alert if no moves remain.
+        // Game over if no moves remain
         if (!this.hasMoves()) {
             this.gameOver = true
             gameOverSound.volume = 0.1
@@ -113,7 +113,6 @@ function Game2048(_size) {
 
     // Merge one row to the left
     Game2048.prototype.mergeRow = function (row) {
-        //TODO CHECK HERE
         row = row.filter(cell => cell.value !== 0) // Remove zeros
 
         for (let i = 0; i < row.length - 1; i++) {
@@ -188,8 +187,8 @@ function Game2048(_size) {
 
         const renderLoop = () => {
             /**
-             * Remove all tiles that were mergedin the last loop
-             * This ensures view transitions are exectuted correctly
+             * Remove all tiles that were merged in the last loop
+             * This ensures view transitions are executed correctly
              **/
             deleteTiles()
             updateScore()
@@ -369,9 +368,7 @@ function ThemeManager() {
 }
 
 function handleInteractions() {
-    console.log('hello')
     document.addEventListener('keydown', event => {
-        console.log('keydown', event)
         switch (event.key) {
             case 'ArrowLeft':
                 game.move('left')
