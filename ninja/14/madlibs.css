@@ -1,0 +1,25 @@
+#container {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 300px;
+    gap: 10px;
+    background: linear-gradient(lightcyan, lightblue);
+    padding: 10px;
+}
+
+input {
+    background-color: lightblue;
+    border-width: 0px;
+    padding: 10px;
+    box-shadow: inset 2px 2px 5px rgb(78, 78, 78);
+}
+
+button {
+    background-color: lightblue;
+    padding: 10px;
+    box-shadow: 2px 2px 5px rgb(78, 78, 78);
+}
+
+body {
+    background-color: lightcyan;
+}
