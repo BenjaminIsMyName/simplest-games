@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>המשחק הראשון שלי - גרסה סופית</title>
+    <style>
+        body { margin: 0; text-align: center; font-family: 'Segoe UI', Arial, sans-serif; background-color: #a2d2ff; }
+        h1 { color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        
+        canvas { 
+            display: block; 
+            margin: 10px auto; 
+            border: 8px solid #ffffff; 
+            border-radius: 15px; 
+            background-color: #4cc9f0;
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .info-box { background: white; padding: 10px 20px; display: inline-block; border-radius: 10px; margin-bottom: 10px; }
+        
+        #restartBtn {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+        }
+        #restartBtn:hover { background-color: #ff6b81; }
+    </style>
+</head>
+<body>
+
+    <h1>[כאן כותבים את שם המשחק שלכם!]</h1>
+
+    <div class="info-box">
+        <h3>איך מנצחים?</h3>
+        <p>לוחצים על <strong>רווח (Space)</strong> ולא נוגעים בעמודים או ברצפה!</p>
+    </div>
+
+    <br>
+
+    <span>הדמות שלי כרגע: </span>
+    <div id="playerColorIndicator" style="display:inline-block; width:30px; height:30px; background: yellow; border: 2px solid black; vertical-align: middle;"></div>
+    
+    <div style="position: relative;">
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        <button id="restartBtn" onclick="resetGame()">נסו שוב!</button>
+    </div>
+
+    <h4>המשחק פותח בגאווה על ידי: [השם שלכם]</h4>
+</body>
+
+<footer>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorBox = document.getElementById('playerColorIndicator');
+        const restartBtn = document.getElementById('restartBtn');
+
+        let bird = { x: 100, y: 150, width: 35, height: 35, gravity: 0.6, lift: -9, velocity: 0 };
+        let pipes = [];
+        let frame = 0;
+        let score = 0;
+        let gameActive = true;
+        let birdColor = colorBox.style.background;
+
+        function update() {
+            if (!gameActive) return;
+
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+
+            if (bird.y + bird.height >= canvas.height) {
+                bird.y = canvas.height - bird.height;
+                gameOver();
+            }
+            if (bird.y < 0) { bird.y = 0; bird.velocity = 0; }
+
+            if (frame % 100 === 0) {
+                let spacing = 170;
+                let pipeHeight = Math.random() * (canvas.height - spacing - 100) + 50;
+                pipes.push({ x: canvas.width, top: pipeHeight, bottom: canvas.height - pipeHeight - spacing });
+            }
+
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                pipes[i].x -= 4;
+
+                if (bird.x < pipes[i].x + 60 && bird.x + bird.width > pipes[i].x &&
+                   (bird.y < pipes[i].top || bird.y + bird.height > canvas.height - pipes[i].bottom)) {
+                    gameOver();
+                }
+
+                if (pipes[i].x < -60) {
+                    pipes.splice(i, 1);
+                    score++;
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = birdColor;
+            ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(bird.x, bird.y, bird.width, bird.height);
+
+            ctx.fillStyle = "#2d6a4f";
+            pipes.forEach(p => {
+                ctx.fillRect(p.x, 0, 60, p.top);
+                ctx.fillRect(p.x, canvas.height - p.bottom, 60, p.bottom);
+            });
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.6)"; 
+
+            ctx.fillRect(40, 20, 140, 50); 
+            
+            ctx.fillStyle = "white";
+            ctx.font = "bold 24px Arial";
+            ctx.textAlign = "right";
+
+            ctx.fillText("ניקוד: " + score, 160, 53);
+            ctx.textAlign = "start"; 
+        }
+
+        function gameOver() {
+            gameActive = false;
+            restartBtn.style.display = "block"; 
+        }
+
+        function resetGame() {
+            bird.y = 150;
+            bird.velocity = 0;
+            pipes = [];
+            score = 0;
+            frame = 0;
+            gameActive = true;
+            restartBtn.style.display = "none";
+        }
+
+        function loop() {
+            update();
+            draw();
+            frame++;
+            requestAnimationFrame(loop);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && gameActive) {
+                bird.velocity = bird.lift;
+                e.preventDefault();
+            }
+        });
+
+        loop();
+    </script>
+</footer>
+</html>

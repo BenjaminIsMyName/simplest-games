@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התחברות למערכת הסודית</title>
+    
+    <style>
+        /* עיצוב סייבר-האקר */
+        body { background-color: #0d0d0d; color: #00ff00; font-family: 'Courier New', Courier, monospace; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        h1 { text-shadow: 0 0 10px #00ff00; margin-bottom: 30px; }
+        
+        #login-box { background-color: #111; border: 2px solid #00ff00; border-radius: 10px; width: 400px; margin: 50px auto; padding: 40px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); }
+        
+        .input-group { margin-bottom: 25px; text-align: right; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: bold; }
+        
+        .cyber-input { width: 90%; background-color: #000; color: #00ff00; border: 1px solid #008800; padding: 12px; font-size: 16px; font-family: inherit; border-radius: 5px; outline: none; transition: 0.3s; }
+        .cyber-input:focus { border-color: #00ff00; box-shadow: 0 0 10px rgba(0,255,0,0.5); }
+        .cyber-input::placeholder { color: #005500; }
+        
+        .cyber-button { background-color: #004400; color: #00ff00; border: 2px solid #00ff00; padding: 15px 30px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; border-radius: 5px; transition: 0.2s; font-family: inherit; text-transform: uppercase; }
+        .cyber-button:hover { background-color: #00ff00; color: #000; box-shadow: 0 0 15px #00ff00; }
+        
+        /* אזור המשחק */
+        #game-container { display: none; margin: 0 auto; position: relative; width: 800px; }
+        canvas { background-color: #050505; border: 2px solid #00ff00; border-radius: 5px; box-shadow: 0 0 30px rgba(0, 255, 0, 0.1); display: block; margin: 0 auto; }
+        .instructions { font-size: 18px; color: #aaa; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>🕵️‍♂️ מערכת ביון מרכזית 🕵️‍♂️</h1>
+    
+    <div id="login-box">
+        <h2>הזדהות סוכן</h2>
+        <p style="color: #666; font-size: 14px;">השלם את שדות הקלט והכפתור כדי לפרוץ למערכת</p>
+        
+        <div class="input-group">
+            <label>שם סוכן:</label>
+            <input type="text" id="agentName" class="cyber-input" placeholder="הכנס שם סוכן כאן...">
+        </div>
+        
+        <div class="input-group">
+            <label>קוד סודי:</label>
+            <input type="password" id="agentPass" class="cyber-input" placeholder="הכנס סיסמה מוסתרת...">
+        </div>
+        
+        <button class="cyber-button" onclick="checkCodeAndHack()">התחבר למסד הנתונים</button>
+    </div>
+
+    <div id="game-container">
+        <p class="instructions">השתמשו ב<b>חצים (ימינה/שמאלה)</b> כדי להזיז את המפענח. שברו את כל חומות האש!</p>
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+    </div>
+
+    <script>
+        // בגרסת המורה אנחנו מדלגים ישר פנימה
+        function checkCodeAndHack() {
+            document.getElementById('login-box').style.display = 'none';
+            document.querySelector('h1').innerText = "💻 פריצת חומת אש החלה... 💻";
+            document.getElementById('game-container').style.display = 'block';
+            startGame();
+        }
+
+        // --- מנוע משחק: מפצח חומות האש (Breakout) ---
+        let canvas, ctx, animationId;
+        let paddle = { x: 350, y: 470, w: 120, h: 15, speed: 15, dx: 0 };
+        let ball = { x: 400, y: 450, radius: 8, speed: 8, dx: 7, dy: -7 };
+        let bricks = [];
+        let score = 0;
+        let lives = 3;
+        let isGameOver = false;
+        let isWin = false;
+
+        // --- מערכת צלילים ---
+        let audioContext;
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(type) {
+            if (!audioContext) initAudio();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'paddleHit':
+                    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+                    oscillator.type = 'triangle';
+                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                    break;
+                    
+                case 'brickBreak':
+                    oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3);
+                    oscillator.type = 'sawtooth';
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                    break;
+                    
+                case 'win':
+                    oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
+                    oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.15); // G5
+                    oscillator.frequency.setValueAtTime(1047, audioContext.currentTime + 0.3); // C6
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.8);
+                    break;
+            }
+        }
+
+        // בניית חומת האש (הלבנים)
+        function initBricks() {
+            bricks = [];
+            const rows = 5;
+            const cols = 8;
+            for(let r = 0; r < rows; r++) {
+                for(let c = 0; c < cols; c++) {
+                    bricks.push({
+                        x: 45 + c * 90,
+                        y: 50 + r * 35,
+                        w: 80,
+                        h: 20,
+                        active: true,
+                        // נותן צבעים שונים לפי השורות לאפקט מגניב
+                        color: r === 0 ? "#ff0000" : r === 1 ? "#e67e22" : r === 2 ? "#f1c40f" : "#2ecc71"
+                    });
+                }
+            }
+        }
+
+        function startGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            initBricks();
+            
+            // האזנה למקשים
+            document.addEventListener('keydown', (e) => {
+                if(e.code === 'ArrowLeft') paddle.dx = -paddle.speed;
+                if(e.code === 'ArrowRight') paddle.dx = paddle.speed;
+                if(e.code === 'Enter' && (isGameOver || isWin)) resetGame();
+            });
+            document.addEventListener('keyup', (e) => {
+                if(e.code === 'ArrowLeft' && paddle.dx < 0) paddle.dx = 0;
+                if(e.code === 'ArrowRight' && paddle.dx > 0) paddle.dx = 0;
+            });
+
+            requestAnimationFrame(update);
+        }
+
+        function resetGame() {
+            initBricks();
+            score = 0;
+            lives = 3;
+            isGameOver = false;
+            isWin = false;
+            resetBall();
+            requestAnimationFrame(update);
+        }
+
+        function resetBall() {
+            ball.x = paddle.x + paddle.w / 2;
+            ball.y = paddle.y - 15;
+            ball.dy = -8; // תמיד מתחיל למעלה
+            // זווית קלה אקראית
+            ball.dx = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 2 + 6); 
+        }
+
+        function update() {
+            if(isGameOver || isWin) return;
+
+            // תזוזת המפענח (Paddle)
+            paddle.x += paddle.dx;
+            if(paddle.x < 0) paddle.x = 0;
+            if(paddle.x + paddle.w > canvas.width) paddle.x = canvas.width - paddle.w;
+
+            // תזוזת הכדור
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            // פגיעה בקירות (שמאל, ימין, תקרה)
+            if(ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) ball.dx *= -1;
+            if(ball.y - ball.radius < 0) ball.dy *= -1;
+
+            // פגיעה ברצפה (פסילה)
+            if(ball.y + ball.radius > canvas.height) {
+                lives--;
+                if(lives <= 0) {
+                    isGameOver = true;
+                } else {
+                    resetBall();
+                }
+            }
+
+            // פגיעה במפענח (Paddle)
+            if(ball.y + ball.radius > paddle.y && 
+               ball.x > paddle.x && 
+               ball.x < paddle.x + paddle.w && 
+               ball.dy > 0) {
+                
+                playSound('paddleHit');
+                ball.dy *= -1;
+                // שינוי זווית הכדור לפי מיקום הפגיעה במשטח
+                let hitPoint = ball.x - (paddle.x + paddle.w / 2);
+                ball.dx = hitPoint * 0.15; 
+            }
+
+            // פגיעה בחומת אש (Bricks)
+            let activeBricks = 0;
+            bricks.forEach(b => {
+                if(b.active) {
+                    activeBricks++;
+                    if(ball.x > b.x && ball.x < b.x + b.w && 
+                       ball.y - ball.radius < b.y + b.h && ball.y + ball.radius > b.y) {
+                        
+                        playSound('brickBreak');
+                        ball.dy *= -1; // הקפצה חזרה
+                        b.active = false; // שבירת הלבנה
+                        score += 10;
+                    }
+                }
+            });
+
+            // בדיקת ניצחון
+            if(activeBricks === 0) {
+                playSound('win');
+                isWin = true;
+            }
+
+            draw();
+            animationId = requestAnimationFrame(update);
+        }
+
+        function draw() {
+            // ניקוי מסך (שובל קל)
+            ctx.fillStyle = "rgba(5, 5, 5, 0.3)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // ציור המפענח (המשטח למטה)
+            ctx.fillStyle = "#00ff00";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#00ff00";
+            ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+            // ציור הכדור (חבילת המידע)
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "#ffffff";
+            ctx.fill();
+            ctx.closePath();
+
+            // ציור חומות האש
+            bricks.forEach(b => {
+                if(b.active) {
+                    ctx.fillStyle = b.color;
+                    ctx.shadowBlur = 5;
+                    ctx.shadowColor = b.color;
+                    ctx.fillRect(b.x, b.y, b.w, b.h);
+                    
+                    // מסגרת פנימית ליופי
+                    ctx.strokeStyle = "rgba(0,0,0,0.5)";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(b.x, b.y, b.w, b.h);
+                }
+            });
+
+            // ציור UI
+            ctx.fillStyle = "#00ff00";
+            ctx.shadowBlur = 0;
+            ctx.font = "bold 20px Courier New";
+            ctx.fillText("DATA: " + score + " TB", 20, 30);
+            ctx.fillText("ATTEMPTS: " + lives, canvas.width - 160, 30);
+
+            // מסך ניצחון / הפסד
+            if(isGameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ff0000";
+                ctx.textAlign = "center";
+                ctx.font = "bold 60px Courier New";
+                ctx.fillText("ACCESS DENIED", canvas.width / 2, canvas.height / 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "24px Courier New";
+                ctx.fillText("Press ENTER to reconnect", canvas.width / 2, canvas.height / 2 + 50);
+                ctx.textAlign = "left";
+            }
+
+            if(isWin) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#00ff00";
+                ctx.textAlign = "center";
+                ctx.font = "bold 60px Courier New";
+                ctx.fillText("SYSTEM COMPROMISED", canvas.width / 2, canvas.height / 2);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "24px Courier New";
+                ctx.fillText("All Firewalls Destroyed!", canvas.width / 2, canvas.height / 2 + 50);
+                ctx.fillText("Press ENTER to play again", canvas.width / 2, canvas.height / 2 + 90);
+                ctx.textAlign = "left";
+            }
+        }
+    </script>
+</body>
+</html>

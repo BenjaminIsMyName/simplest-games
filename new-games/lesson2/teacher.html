@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פלישת התרנגולות - טסט למורה (עם לבבות)</title>
+    
+    <style>
+        body { background-color: #0f0f1b; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        h1 { color: #ff4757; text-shadow: 0 0 10px #ff4757; margin-bottom: 5px; }
+        .instructions { font-size: 18px; color: #ced6e0; margin-top: 0; margin-bottom: 20px; }
+        
+        #game-container { margin: 0 auto; display: block; }
+        canvas { 
+            background: linear-gradient(to bottom, #000011 0%, #1a1a3a 100%); 
+            border: 4px solid #2ed573; 
+            border-radius: 10px; 
+            box-shadow: 0 0 20px rgba(46, 213, 115, 0.4); 
+            display: block; 
+            margin: 0 auto; 
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🐔 פלישת התרנגולות 🐔</h1>
+    <p class="instructions">חצים ימינה/שמאלה לתזוזה | מקש רווח (Space) לירי | אל תתנו להן לנחות!</p>
+    
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <script>
+        // --- מערכת צלילים ומוזיקה ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let ambientOscillators = [];
+        let ambientGain;
+        let ambientTimeout = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function startAmbientMusic() {
+            if (!audioCtx) initAudio();
+            
+            // נקינוי timeouts ישנים
+            if (ambientTimeout) {
+                clearTimeout(ambientTimeout);
+                ambientTimeout = null;
+            }
+            
+            ambientGain = audioCtx.createGain();
+            ambientGain.gain.value = 0.02; // עוצמה נמוכה מאוד
+            ambientGain.connect(audioCtx.destination);
+
+            // סדרת תווים שיוצרים אווירה של חלל
+            const notes = [196, 220, 247]; // G3, A3, B3
+            let noteIndex = 0;
+
+            function playAmbientNote() {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = notes[noteIndex % notes.length];
+                
+                gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
+                
+                osc.connect(gain);
+                gain.connect(ambientGain);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 2.5);
+                
+                ambientOscillators.push(osc);
+                noteIndex++;
+                
+                // חוזרים על התו הבא כל 2.8 שניות
+                ambientTimeout = setTimeout(playAmbientNote, 2800);
+            }
+            
+            playAmbientNote();
+        }
+
+        function stopAmbientMusic() {
+            if (ambientTimeout) {
+                clearTimeout(ambientTimeout);
+                ambientTimeout = null;
+            }
+            if (ambientGain) {
+                ambientGain.gain.setValueAtTime(ambientGain.gain.value, audioCtx.currentTime);
+                ambientGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
+            }
+            ambientOscillators.forEach(osc => {
+                try { osc.stop(); } catch(e) {}
+            });
+            ambientOscillators = [];
+        }
+
+        function playSound(type) {
+            if (!audioCtx) initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                // צליל קליק - קול יבש וקצר
+                osc.type = 'sine';
+                gain.gain.value = 0.04;
+                const now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.start();
+                osc.stop(now + 0.08);
+
+            } else if (type === 'shoot') {
+                // צליל יריה - קול חד וקצר
+                osc.type = 'square';
+                gain.gain.value = 0.03;
+                const now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(1200, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.12);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                osc.start();
+                osc.stop(now + 0.12);
+
+            } else if (type === 'hit') {
+                // צליל פגיעה - קול עליז עוני
+                osc.type = 'sine';
+                gain.gain.value = 0.05;
+                const now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.setValueAtTime(1000, now + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.start();
+                osc.stop(now + 0.15);
+
+            } else if (type === 'loseLife') {
+                // צליל שגיאה - שני תווים יורדים
+                osc.type = 'sine';
+                gain.gain.value = 0.06;
+                const now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.setValueAtTime(300, now + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                osc.start();
+                osc.stop(now + 0.25);
+
+            } else if (type === 'gameOver') {
+                // צליל סיום משחק - כרד דרמתי
+                osc.type = 'sawtooth';
+                gain.gain.value = 0.04;
+                const now = audioCtx.currentTime;
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start();
+                osc.stop(now + 0.5);
+            }
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // הגדרות השחקן והמשחק
+        let player = { x: 375, y: 530, w: 50, h: 50, speed: 7 };
+        let bullets = [];
+        let chickens = [];
+        let stars = [];
+        let score = 0;
+        let lives = 3; // הוספנו 3 חיים!
+        let keys = {};
+        let isGameOver = false;
+
+        // יצירת כוכבים לרקע
+        for(let i = 0; i < 100; i++) {
+            stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 1, speed: Math.random() * 3 + 0.5 });
+        }
+
+        // האזנה למקשים
+        document.addEventListener('keydown', (e) => { keys[e.code] = true; });
+        document.addEventListener('keyup', (e) => { keys[e.code] = false; });
+        
+        document.addEventListener('keydown', (e) => {
+            // ירייה
+            if(e.code === 'Space' && !e.repeat && !isGameOver) {
+                playSound('shoot');
+                bullets.push({ x: player.x + player.w / 2 - 3, y: player.y, w: 6, h: 20, speed: 10 });
+            }
+            // התחלה מחדש
+            if(e.code === 'Enter' && isGameOver) {
+                playSound('click');
+                resetGame();
+            }
+        });
+
+        // יצירת תרנגולות כל 800 מילישניות
+        setInterval(() => {
+            if(!isGameOver) {
+                chickens.push({
+                    x: Math.random() * (canvas.width - 40),
+                    y: -40, w: 40, h: 40, speed: 1.5 + Math.random() * 2
+                });
+            }
+        }, 800);
+
+        function resetGame() {
+            score = 0;
+            lives = 3; // איפוס החיים בחזרה ל-3
+            chickens = [];
+            bullets = [];
+            player.x = 375;
+            isGameOver = false;
+            stopAmbientMusic(); // עצירת המוזיקה הישנה
+            startAmbientMusic(); // התחלת המוזיקה שוב
+        }
+
+        function update() {
+            if(isGameOver) return;
+
+            // תזוזת כוכבים ברקע
+            stars.forEach(s => {
+                s.y += s.speed;
+                if(s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
+            });
+
+            // תזוזת שחקן וגבולות מסך
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.w) {
+                player.x += player.speed;
+            }
+
+            // תזוזת יריות
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].y -= bullets[i].speed;
+                if (bullets[i].y < 0) bullets.splice(i, 1);
+            }
+
+            // תזוזת תרנגולות ובדיקת פגיעות
+            for (let i = chickens.length - 1; i >= 0; i--) {
+                let c = chickens[i];
+                c.y += c.speed;
+
+                // בדיקה אם התרנגולת הגיעה למטה
+                if(c.y > canvas.height) {
+                    playSound('loseLife');
+                    chickens.splice(i, 1); // מוחקים את התרנגולת
+                    lives--; // מורידים חיים אחד
+                    if(lives <= 0) {
+                        isGameOver = true; // אם נגמרו החיים, המשחק נגמר
+                        stopAmbientMusic(); // עצירת המוזיקה
+                        setTimeout(() => playSound('gameOver'), 100);
+                    }
+                    continue; // ממשיכים לתרנגולת הבאה כדי לא לבדוק פגיעת כדור לתרנגולת שכבר נמחקה
+                }
+
+                // בדיקת פגיעה של לייזר בתרנגולת
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    let b = bullets[j];
+                    if (b.x < c.x + c.w && b.x + b.w > c.x && b.y < c.y + c.h && b.y + b.h > c.y) {
+                        playSound('hit');
+                        chickens.splice(i, 1); // מחיקת התרנגולת
+                        bullets.splice(j, 1);  // מחיקת הלייזר
+                        score += 10;           // העלאת הניקוד
+                        break;
+                    }
+                }
+            }
+
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function draw() {
+            // ניקוי המסך
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // ציור כוכבים
+            ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+            stars.forEach(s => { ctx.fillRect(s.x, s.y, s.size, s.size); });
+
+            // ציור שחקן (חללית)
+            ctx.font = "45px Arial";
+            ctx.fillText("🚀", player.x, player.y + 40);
+
+            // ציור יריות (לייזרים מעוגלים)
+            ctx.fillStyle = "#ff4757";
+            bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.roundRect(b.x, b.y, b.w, b.h, 3);
+                ctx.fill();
+            });
+
+            // ציור תרנגולות
+            ctx.font = "40px Arial";
+            chickens.forEach(c => ctx.fillText("🐔", c.x, c.y + 35));
+
+            // ציור ניקוד - בצד שמאל
+            ctx.fillStyle = "#2ed573";
+            ctx.font = "bold 26px Tahoma";
+            ctx.textAlign = "left";
+            ctx.fillText("Score: " + score, 20, 40);
+
+            // ציור חיים (לבבות) - בצד ימין
+            ctx.fillStyle = "#ff4757";
+            ctx.textAlign = "right";
+            let heartsStr = "";
+            for(let i = 0; i < lives; i++) heartsStr += "❤️ ";
+            ctx.fillText("חיים: " + heartsStr, canvas.width - 20, 40);
+            
+            ctx.textAlign = "left"; // החזרה לברירת מחדל כדי לא להרוס ציורים אחרים
+
+            // ציור מסך פסילה (Game Over)
+            if(isGameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.75)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = "#ff4757";
+                ctx.textAlign = "center";
+                ctx.font = "bold 60px Tahoma";
+                ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+                
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "24px Tahoma";
+                ctx.fillText("הגעתם ל-" + score + " נקודות!", canvas.width / 2, canvas.height / 2 + 50);
+                ctx.fillText("לחצו על ENTER כדי להתחיל מחדש", canvas.width / 2, canvas.height / 2 + 90);
+                
+                ctx.textAlign = "left"; // החזרה לברירת מחדל
+            }
+        }
+
+        // הפעלת המשחק
+        startAmbientMusic();
+        requestAnimationFrame(update);
+    </script>
+</body>
+</html>

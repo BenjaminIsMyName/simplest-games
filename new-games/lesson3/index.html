@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <style>
+        /* עיצוב כללי - אין צורך לגעת פה */
+        body { background-color: #1e1e24; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        h1 { color: #f1c40f; text-shadow: 0 0 10px #f39c12; margin-bottom: 5px; }
+        #garage-panel { background-color: #2b2b36; border-radius: 15px; width: 70%; max-width: 900px; margin: 20px auto; padding: 30px; border: 4px dashed #7f8c8d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #car-preview-container { display: flex; justify-content: center; margin: 30px 0; align-items: flex-end; height: 120px; border-bottom: 5px solid #555; padding-bottom: 10px; position: relative;}
+        
+        /* מיקומי חלקי הרכב */
+        #my-car-body { position: absolute; bottom: 10px; z-index: 1; border-radius: 10px; }
+        #my-car-roof { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 1; border-radius: 15px 15px 0 0; }
+        
+        .btn { background-color: #3498db; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.2s; box-shadow: 0 4px #2980b9; }
+        .btn:hover { background-color: #2980b9; transform: translateY(2px); box-shadow: 0 2px #1c5980; }
+        
+        #game-container { display: none; margin: 0 auto; position: relative; width: 1000px; }
+        canvas { background: linear-gradient(to bottom, #2c3e50 0%, #3498db 100%); border: 4px solid #f1c40f; border-radius: 10px; box-shadow: 0 0 20px rgba(241, 196, 15, 0.4); display: block; }
+        .instructions { font-size: 18px; color: #bdc3c7; margin-bottom: 20px; }
+        
+        /* משימה 4+5: עצבו כאן ב-CSS את #my-car-body ואת #my-car-roof 
+           הוסיפו: width, height, background-color, ו-border */
+
+    </style>
+</head>
+<body>
+
+    <h1>🏎️ מרוץ המכשולים של סדנת הרכבים 🏎️</h1>
+    
+    <div id="garage-panel">
+        <h2>עיצוב רכב המרוץ שלך</h2>
+        
+        <h3 id="car-name">רכב-הטורבו שלי</h3>
+        
+        <p id="safety-rules">
+            רכב זה נבנה כדי להיות מהיר במיוחד! אסור לנסוע לאט, וחשוב לזכור: זהירות ממחסומים!
+        </p>
+
+        <div id="car-preview-container">
+            <div id="my-car-roof"></div>
+            <div id="my-car-body"></div>
+        </div>
+
+        <button class="btn" onclick="checkCodeAndStart()">🚦 הוצא רכב מהמוסך והתחל מרוץ 🚦</button>
+    </div>
+
+    <div id="game-container">
+        <p class="instructions">לחצו על <b>רווח (Space)</b> כדי לקפוץ. המנוע יתחיל לעבוד ברגע שתצאו!</p>
+        <canvas id="gameCanvas" width="1000" height="500"></canvas>
+    </div>
+
+    <script>
+        // --- מערכת סאונד רציפה (Loop) ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let engineOsc1, engineOsc2, engineGain, engineFilter;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function startLoopingEngine() {
+            initAudio();
+            engineOsc1 = audioCtx.createOscillator();
+            engineOsc2 = audioCtx.createOscillator();
+            engineGain = audioCtx.createGain();
+            engineFilter = audioCtx.createBiquadFilter();
+            engineOsc1.type = 'sawtooth';
+            engineOsc2.type = 'square';
+            engineFilter.type = 'lowpass';
+            engineFilter.frequency.value = 500;
+            engineOsc1.connect(engineFilter);
+            engineOsc2.connect(engineFilter);
+            engineFilter.connect(engineGain);
+            engineGain.connect(audioCtx.destination);
+            engineGain.gain.value = 0.04; 
+            engineOsc1.start(); engineOsc2.start();
+        }
+
+        function updateEnginePitch(speed) {
+            if (engineOsc1) {
+                let baseFreq = 50 + (speed * 4);
+                engineOsc1.frequency.setTargetAtTime(baseFreq, audioCtx.currentTime, 0.1);
+                engineOsc2.frequency.setTargetAtTime(baseFreq / 2, audioCtx.currentTime, 0.1);
+                engineFilter.frequency.setTargetAtTime(300 + (speed * 50), audioCtx.currentTime, 0.1);
+            }
+        }
+
+        function stopLoopingEngine() {
+            if (engineOsc1) { engineOsc1.stop(); engineOsc2.stop(); engineOsc1 = null; }
+        }
+
+        function playEffect(type) {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.connect(g); g.connect(audioCtx.destination);
+            if(type === 'jump') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+                g.gain.value = 0.08; osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } else if(type === 'coin') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(1500, audioCtx.currentTime + 0.05);
+                g.gain.value = 0.1; osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            } else if(type === 'crash') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.4);
+                g.gain.value = 0.2; osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            }
+        }
+
+        // --- בדיקות קוד ותחילת משחק ---
+        let carStyle = { wBody: 150, hBody: 40, wRoof: 80, hRoof: 35, color: '#e67e22', borderW: 3, borderC: '#ffffff' };
+
+        function checkCodeAndStart() {
+            let errors = [];
+            const titleTag = document.querySelector('title');
+            const iconTag = document.querySelector('link[rel="icon"]');
+            if(!titleTag || titleTag.innerText.trim() === "" || titleTag.innerText.includes("Document")) errors.push("1. חסרה כותרת ייחודית לאתר (title).");
+            if(!iconTag) errors.push("2. שכחתם להוסיף אייקון (favicon) בעזרת link:icon.");
+            const carName = document.getElementById('car-name');
+            if(!carName.style.color || !carName.style.fontSize) errors.push("3. שם הרכב חייב עיצוב style (צבע וגודל).");
+            const rules = document.getElementById('safety-rules');
+            if(!rules.querySelector('b') || !rules.querySelector('del') || !rules.querySelector('mark')) errors.push("4. חסרות תגיות טקסט בפסקת הכללים (b, del, mark).");
+            const carBodyDiv = document.getElementById('my-car-body');
+            const carRoofDiv = document.getElementById('my-car-roof');
+            const bodyCSS = window.getComputedStyle(carBodyDiv);
+            const roofCSS = window.getComputedStyle(carRoofDiv);
+            if(parseInt(bodyCSS.width) < 10 || bodyCSS.backgroundColor === "rgba(0, 0, 0, 0)") errors.push("5. גוף הרכב לא עוצב ב-CSS.");
+
+            if(errors.length > 0) {
+                alert("המכונאי מצא תקלות:\n\n" + errors.join("\n\n"));
+                return;
+            }
+
+            // שאיבת עיצוב
+            carStyle.color = bodyCSS.backgroundColor;
+            carStyle.wBody = parseInt(bodyCSS.width); carStyle.hBody = parseInt(bodyCSS.height);
+            carStyle.wRoof = parseInt(roofCSS.width); carStyle.hRoof = parseInt(roofCSS.height);
+            carStyle.borderC = bodyCSS.borderColor; carStyle.borderW = parseInt(bodyCSS.borderWidth);
+
+            startLoopingEngine();
+            document.getElementById('garage-panel').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            startGame();
+        }
+
+        // --- מנוע המשחק ---
+        let canvas, ctx, player = { x: 150, y: 0, vy: 0, gravity: 0.6, jumpStrength: -13, grounded: false }, 
+            obstacles = [], coins = [], particles = [], buildings = [], score = 0, gameSpeed = 8, isGameOver = false, frameCount = 0, bgOffset = 0, roadOffset = 0;
+
+        function startGame() {
+            canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+            player.w = carStyle.wBody; player.h = carStyle.hBody + carStyle.hRoof - 5;
+            player.y = canvas.height - 50 - player.h;
+            for(let i=0; i<30; i++) buildings.push({ x: i * 60, w: 40 + Math.random()*30, h: 50 + Math.random()*200 });
+            document.addEventListener('keydown', e => {
+                if((e.code === 'Space' || e.code === 'ArrowUp') && player.grounded && !isGameOver) {
+                    player.vy = player.jumpStrength; player.grounded = false; playEffect('jump');
+                }
+                if(e.code === 'Enter' && isGameOver) resetGame();
+            });
+            requestAnimationFrame(update);
+        }
+
+        function resetGame() {
+            score = 0; obstacles = []; coins = []; particles = []; gameSpeed = 8; isGameOver = false; frameCount = 0;
+            player.y = canvas.height - 50 - player.h; player.vy = 0;
+            startLoopingEngine(); requestAnimationFrame(update);
+        }
+
+        function update() {
+            if(isGameOver) return;
+            frameCount++;
+            updateEnginePitch(gameSpeed);
+            player.vy += player.gravity; player.y += player.vy;
+            const ground = canvas.height - 50 - player.h;
+            if(player.y >= ground) { 
+                player.y = ground; player.vy = 0; player.grounded = true; 
+                if(frameCount % 4 === 0) particles.push({x: player.x, y: player.y + player.h - 10, vx: -3, life: 1.0});
+            }
+            if(frameCount % 80 === 0) obstacles.push({ x: canvas.width, y: canvas.height - 95, w: 35, h: 45 });
+            if(frameCount % 120 === 0) coins.push({ x: canvas.width, y: canvas.height - 150 - Math.random()*40, radius: 18 });
+
+            bgOffset -= gameSpeed * 0.3; if(bgOffset <= -60) bgOffset = 0;
+            roadOffset -= gameSpeed; if(roadOffset <= -120) roadOffset = 0;
+
+            obstacles.forEach((o, i) => {
+                o.x -= gameSpeed;
+                if(player.x < o.x + o.w && player.x + player.w > o.x && player.y + 35 < o.y + o.h && player.y + player.h > o.y) {
+                    isGameOver = true; stopLoopingEngine(); playEffect('crash');
+                }
+                if(o.x < -50) { obstacles.splice(i, 1); score += 10; if(score % 100 === 0) gameSpeed += 0.5; }
+            });
+
+            coins.forEach((c, i) => {
+                c.x -= gameSpeed;
+                if(Math.sqrt(((player.x+player.w/2)-c.x)**2 + ((player.y+player.h/2)-c.y)**2) < 50) {
+                    coins.splice(i, 1); score += 50; playEffect('coin');
+                }
+            });
+
+            particles.forEach((p, i) => { p.x += p.vx; p.life -= 0.04; if(p.life <= 0) particles.splice(i, 1); });
+            draw(); requestAnimationFrame(update);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            buildings.forEach((b, i) => { ctx.fillStyle = "rgba(44, 62, 80, 0.7)"; ctx.fillRect(b.x + bgOffset + (i*5), canvas.height - 50 - b.h, b.w, b.h); });
+            ctx.fillStyle = "#34495e"; ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+            ctx.fillStyle = "#ecf0f1"; for(let i = 0; i < 15; i++) { ctx.fillRect(i * 120 + roadOffset, canvas.height - 28, 60, 6); }
+            particles.forEach(p => { ctx.fillStyle = `rgba(189,195,199,${p.life})`; ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI*2); ctx.fill(); });
+            
+            ctx.fillStyle = carStyle.color; ctx.strokeStyle = carStyle.borderC; ctx.lineWidth = carStyle.borderW;
+            const rX = player.x + (carStyle.wBody - carStyle.wRoof)/2;
+            ctx.beginPath(); ctx.roundRect(rX, player.y, carStyle.wRoof, carStyle.hRoof, [15,15,0,0]); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.roundRect(player.x, player.y + carStyle.hRoof - 5, carStyle.wBody, carStyle.hBody, 8); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "#2c3e50"; ctx.beginPath(); ctx.arc(player.x+30, player.y+player.h, 18, 0, Math.PI*2); ctx.fill(); ctx.arc(player.x+player.w-30, player.y+player.h, 18, 0, Math.PI*2); ctx.fill();
+            
+            ctx.fillStyle = "#e67e22"; obstacles.forEach(o => { ctx.beginPath(); ctx.moveTo(o.x+o.w/2, o.y); ctx.lineTo(o.x+o.w, o.y+o.h); ctx.lineTo(o.x, o.y+o.h); ctx.fill(); });
+            ctx.fillStyle = "#f1c40f"; coins.forEach(c => { ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill(); ctx.fillStyle="#000"; ctx.font="bold 16px Arial"; ctx.fillText("$", c.x-5, c.y+6); ctx.fillStyle="#f1c40f"; });
+            
+            ctx.fillStyle = "#fff"; ctx.font = "bold 32px Tahoma"; ctx.textAlign = "right"; ctx.fillText("Score: " + score, canvas.width - 20, 45);
+            if(isGameOver) {
+                ctx.fillStyle = "rgba(0,0,0,0.8)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#e74c3c"; ctx.textAlign="center"; ctx.font="bold 60px Tahoma"; ctx.fillText("התרסקות!", canvas.width/2, canvas.height/2);
+                ctx.fillStyle = "#fff"; ctx.font="24px Tahoma"; ctx.fillText("לחץ ENTER לניסיון חוזר", canvas.width/2, canvas.height/2 + 60);
+            }
+        }
+    </script>
+</body>
+</html>

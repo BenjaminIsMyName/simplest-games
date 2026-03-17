@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>טסט משחקיות - שוד הבנק (גדול ועדין!)</title>
+    
+    <style>
+        body { background-color: #1a1a24; color: #ecf0f1; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; margin: 0; padding: 20px; }
+        h1 { color: #f1c40f; text-shadow: 0 0 10px #f39c12; }
+        
+        #vault-panel { background-color: #2c3e50; border: 8px solid #7f8c8d; border-radius: 20px; width: 500px; margin: 50px auto; padding: 40px; box-shadow: inset 0 0 20px #000, 0 10px 30px rgba(0,0,0,0.8); }
+        .vault-door { border: 4px dashed #95a5a6; padding: 20px; border-radius: 10px; background-color: #34495e; }
+        
+        .secret-text { background-color: #000; color: #e74c3c; padding: 10px; font-family: monospace; font-size: 20px; letter-spacing: 5px; user-select: all; margin: 20px 0; border: 1px solid #e74c3c; display: inline-block; cursor: text;}
+        
+        .btn-hint { background-color: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-bottom: 20px; transition: 0.2s; }
+        .btn-hint:hover { background-color: #2980b9; }
+        
+        .btn-vault { background-color: #e74c3c; color: white; padding: 20px 40px; border: 4px solid #c0392b; border-radius: 50px; font-size: 24px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.1s; text-transform: uppercase; box-shadow: 0 6px #c0392b; }
+        .btn-vault:active { transform: translateY(6px); box-shadow: 0 0 #c0392b; }
+        
+        #game-container { display: none; margin: 0 auto; position: relative; width: 1200px; }
+        /* מחביאים את סמן העכבר הרגיל כדי שהכוונת המצוירת תבלוט! */
+        canvas { background-color: #111; border: 8px solid #2c3e50; border-radius: 10px; box-shadow: 0 0 30px rgba(0,0,0,0.5); cursor: none; }
+        .instructions { font-size: 18px; color: #bdc3c7; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>💰 פריצת הכספת המרכזית 💰</h1>
+    
+    <div id="vault-panel">
+        <h2>מנגנון נעילה אלקטרוני</h2>
+        <p>טסט למורה - סאונד עדין ו-CANVAS ענק!</p>
+        
+        <div class="vault-door">
+            
+            <button class="btn-hint" onclick="alert('רמז ממערכת האבטחה:\nכדי לפתוח את הכספת, אל תלחץ קליק רגיל... תלחץ קליק כפול (ondblclick)!')">
+                לחץ עלי לקבלת רמז (onclick)
+            </button>
+            
+            <br>
+
+            <span>הקוד הסודי של הבנק:</span><br>
+            <div class="secret-text" oncopy="alert('אזעקה!!! 🚨\nניסיון העתקת קוד סודי זוהה במערכת!')">
+                X94-B77-Q1
+            </div>
+            <br>
+
+            <button class="btn-vault" ondblclick="openVault()">
+                הפעל כספת (ondblclick)
+            </button>
+        </div>
+    </div>
+
+    <div id="game-container">
+        <p class="instructions">הכספת נפרצה! המשטרה בדרך... <b>כוונו וירו (Click)</b> על שודדי הבנק!</p>
+        <canvas id="gameCanvas" width="1200" height="750"></canvas>
+    </div>
+
+    <script>
+        // --- מערכת סאונד מונמכת ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let sirenOsc, sirenInterval; 
+        let isSirenHigh = false;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        // סירנת משטרה מונמכת משמעותית
+        function startPoliceSiren() {
+            if(!audioCtx) initAudio();
+            if(sirenOsc) return; 
+            
+            sirenOsc = audioCtx.createOscillator();
+            const sirenGain = audioCtx.createGain();
+
+            sirenOsc.type = 'triangle'; 
+            sirenOsc.frequency.value = 600; 
+
+            sirenOsc.connect(sirenGain);
+            sirenGain.connect(audioCtx.destination);
+
+            // ווליום נמוך במיוחד (0.01 מ-0.03)
+            sirenGain.gain.value = 0.01; 
+            
+            sirenOsc.start();
+
+            sirenInterval = setInterval(() => {
+                isSirenHigh = !isSirenHigh;
+                sirenOsc.frequency.setValueAtTime(isSirenHigh ? 800 : 600, audioCtx.currentTime);
+            }, 500);
+        }
+
+        function stopPoliceSiren() {
+            if(sirenOsc) {
+                sirenOsc.stop();
+                clearInterval(sirenInterval);
+                sirenOsc = null;
+            }
+        }
+
+        // צליל ירייה מונמך (0.1 מ-0.3)
+        function playShootSound() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15); 
+            
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // צליל פגיעה מונמך (0.2 מ-0.5)
+        function playHitSound() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.05); 
+            
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // צליל פתיחת כספת מונמך (0.1 מ-0.2)
+        function playVaultSound() {
+            initAudio(); 
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.2);
+            
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.4);
+        }
+
+        // --- פתיחת הכספת ותחילת משחק ---
+        function openVault() {
+            playVaultSound();
+            alert('🔓 קוד אומת בהצלחה! הכספת נפתחת...');
+            document.getElementById('vault-panel').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            startGame();
+        }
+
+        let canvas, ctx, animationId;
+        let score = 0, timeLeft = 30, gameTimer;
+        let isGameOver = false;
+        let robbers = [];
+        // מיקום כוונת התחלתי מעודכן (600, 375) לחצי מהמידות החדשות
+        let mouse = { x: 600, y: 375 }; 
+        let flashOpacity = 0; 
+
+        function startGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            startPoliceSiren(); 
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+            
+            canvas.addEventListener('mousedown', (e) => {
+                if(isGameOver) { resetGame(); return; }
+                
+                flashOpacity = 1.0; 
+                playShootSound(); 
+                
+                for(let i = robbers.length - 1; i >= 0; i--) {
+                    let r = robbers[i];
+                    let dist = Math.sqrt(Math.pow(mouse.x - r.x, 2) + Math.pow(mouse.y - r.y, 2));
+                    
+                    if(dist <= r.radius) {
+                        score += 10;
+                        robbers.splice(i, 1);
+                        playHitSound(); 
+                        break; 
+                    }
+                }
+            });
+
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                if(timeLeft <= 0) {
+                    isGameOver = true;
+                    stopPoliceSiren(); 
+                    clearInterval(gameTimer);
+                }
+            }, 1000);
+
+            setInterval(() => {
+                if(!isGameOver && Math.random() > 0.2) spawnRobber();
+            }, 700);
+
+            requestAnimationFrame(update);
+        }
+
+        function resetGame() {
+            score = 0; timeLeft = 30; robbers = []; isGameOver = false;
+            startPoliceSiren(); 
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                if(timeLeft <= 0) { 
+                    isGameOver = true; 
+                    stopPoliceSiren();
+                    clearInterval(gameTimer); 
+                }
+            }, 1000);
+            requestAnimationFrame(update);
+        }
+
+        function spawnRobber() {
+            let radius = 25 + Math.random() * 20; 
+            // טווח הופעה מותאם למידות ה-CANVAS החדשות
+            let x = radius + Math.random() * (canvas.width - radius * 2);
+            let y = radius + Math.random() * (canvas.height - radius * 2 - 50) + 50; 
+            
+            robbers.push({ x: x, y: y, radius: radius, life: 50 + Math.random() * 50 });
+        }
+
+        function update() {
+            if(isGameOver) { draw(); return; }
+            if(flashOpacity > 0) flashOpacity -= 0.1;
+
+            for(let i = robbers.length - 1; i >= 0; i--) {
+                robbers[i].life--;
+                if(robbers[i].life <= 0) robbers.splice(i, 1);
+            }
+
+            draw();
+            animationId = requestAnimationFrame(update);
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = "#1c2833"; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = "#121a21";
+            ctx.lineWidth = 3;
+            for(let i = 0; i < canvas.height; i += 40) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+                let offset = (i / 40) % 2 === 0 ? 0 : 40;
+                for(let j = offset; j < canvas.width; j += 80) {
+                    ctx.beginPath(); ctx.moveTo(j, i); ctx.lineTo(j, i + 40); ctx.stroke();
+                }
+            }
+        }
+
+        function draw() {
+            drawBackground();
+
+            robbers.forEach(r => {
+                ctx.fillStyle = "#000"; 
+                ctx.beginPath(); ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#222";
+                ctx.fillRect(r.x - r.radius, r.y - r.radius*0.3, r.radius*2, r.radius*0.6);
+                ctx.fillStyle = "#fff";
+                ctx.beginPath(); ctx.arc(r.x - r.radius*0.3, r.y, r.radius*0.15, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(r.x + r.radius*0.3, r.y, r.radius*0.15, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#d4ac0d";
+                ctx.beginPath(); ctx.arc(r.x + r.radius*0.6, r.y + r.radius*0.6, r.radius*0.4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#000";
+                ctx.font = "bold " + (r.radius*0.4) + "px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("$", r.x + r.radius*0.6, r.y + r.radius*0.75);
+            });
+
+            if(flashOpacity > 0) {
+                ctx.fillStyle = `rgba(241, 196, 15, ${flashOpacity})`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            ctx.strokeStyle = "rgba(46, 204, 113, 0.9)"; 
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 20, 0, Math.PI*2); ctx.stroke();
+            ctx.beginPath(); 
+            ctx.moveTo(mouse.x - 30, mouse.y); ctx.lineTo(mouse.x + 30, mouse.y);
+            ctx.moveTo(mouse.x, mouse.y - 30); ctx.lineTo(mouse.x, mouse.y + 30);
+            ctx.stroke();
+            ctx.fillStyle = "red";
+            ctx.beginPath(); ctx.arc(mouse.x, mouse.y, 3, 0, Math.PI*2); ctx.fill();
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(0, 0, canvas.width, 50);
+            ctx.fillStyle = "#f1c40f";
+            ctx.font = "bold 26px Tahoma";
+            ctx.textAlign = "left";
+            ctx.fillText("כסף שניצל: $" + score, 20, 35);
+            ctx.fillStyle = timeLeft > 5 ? "#ecf0f1" : "#e74c3c";
+            ctx.textAlign = "right";
+            ctx.fillText("זמן: " + timeLeft + " שניות", canvas.width - 20, 35);
+
+            if(isGameOver) {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#e74c3c";
+                ctx.textAlign = "center";
+                ctx.font = "bold 60px Tahoma";
+                ctx.fillText("המשימה הסתיימה", canvas.width / 2, canvas.height / 2 - 20);
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "30px Tahoma";
+                ctx.fillText("הצלחתם להציל: $" + score, canvas.width / 2, canvas.height / 2 + 40);
+                ctx.font = "20px Tahoma";
+                ctx.fillStyle = "#bdc3c7";
+                ctx.fillText("לחצו על כל מקום במסך כדי לשחק שוב", canvas.width / 2, canvas.height / 2 + 90);
+            }
+            ctx.textAlign = "left";
+        }
+    </script>
+</body>
+</html>
