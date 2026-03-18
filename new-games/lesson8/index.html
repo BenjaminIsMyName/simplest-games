@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבצע סייבר-ספייס - חדר בריחה</title>
+    </head>
+<body>
+
+    <h1>🌐 סייבר-ספייס II: נקמת הווירוסים 🌐</h1>
+
+    <div id="start-screen" style="background-color: #fff; border-radius: 20px; width: 80%; max-width: 600px; margin: 50px auto; padding: 40px; border: 5px dashed #45a29e;">
+        <h2 style="color: #45a29e; margin-top: 0;">היי מתכנת! התגלה איום במערכת! 👾</h2>
+        <p style="font-size: 18px;">
+            כדי להפעיל את תוכנת ההגנה, עליך לסדר את משתני המערכת ולחבר את הקבצים. <br>
+            השלם את המשימות בקוד ולחץ על סריקה.
+        </p>
+        <button style="font-size: 24px; font-weight: bold; padding: 15px 40px; background-color: #45a29e; color: #fff; border: none; border-radius: 10px; cursor: pointer; margin-top: 20px;" onclick="fallbackCheck()">🔍 הפעל סריקת קוד</button>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <div class="dash-box">
+            שטח שנוקה:
+            <span class="dash-val"><span id="percentDisplay">0</span>% / 80%</span>
+        </div>
+        <div class="dash-box">
+            ניקוד מצטבר:
+            <span class="dash-val" id="scoreDisplay">0</span>
+        </div>
+        <div class="dash-box">
+            חיים:
+            <span class="dash-val val-danger" id="livesDisplay">3</span>
+        </div>
+    </div>
+
+    <div id="game-container" tabindex="0" style="display: none;">
+        <canvas id="gameCanvas" width="900" height="600"></canvas>
+        <div id="overlay">
+            <h2 id="msgText">המערכת נפרצה!</h2>
+            <button onclick="resetGame()">טען מערכת מחדש</button>
+        </div>
+    </div>
+    
+    <p id="game-instructions" class="instructions" style="display: none;">חצים לתזוזה | סגרו שטחים כדי לנקותם | היזהרו מווירוסי ה-👾!</p>
+
+    <script>
+        function fallbackCheck() {
+            let errors = [];
+
+            // בדיקת משימה 1 (CSS) - בודק אם צבע הרקע הפך לשחור-סייברי שלנו
+            let bgColor = window.getComputedStyle(document.body).backgroundColor;
+            if (bgColor !== "rgb(11, 12, 16)") { 
+                errors.push("❌ משימה 1: קובץ ה-CSS (style.css) לא מחובר! המסך נראה רגיל לחלוטין. חברו אותו בעזרת תגית <link>.");
+            }
+
+            // בדיקת משימה 2 (JS) - בודק אם הפונקציה מהקובץ החיצוני נטענה
+            if (typeof checkCodeAndStart !== 'function') {
+                errors.push("❌ משימה 2: קובץ ה-JavaScript (game.js) לא מחובר! המערכת לא מגיבה. חברו אותו בעזרת תגית <script>.");
+            }
+
+            if (errors.length > 0) {
+                // מציג את השגיאות אם יש
+                alert("מערכת הסריקה מצאה תקלות חיבור:\n\n" + errors.join("\n\n"));
+            } else {
+                // אם שני הקבצים מחוברים פיקס, ה-HTML מעביר את הפיקוד ל-JS להמשך הבדיקות (משימות 3-6)
+                checkCodeAndStart(); 
+            }
+        }
+    </script>
+</body>
+</html>
