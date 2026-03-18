@@ -1,0 +1,2 @@
+# [The exam for students (index.html)](https://benjaminismyname.github.io/simplest-games/new-games/lesson7)
+# [The result for teacher (teacher.html)](https://benjaminismyname.github.io/simplest-games/new-games/lesson7/teacher.html)
