@@ -3,9 +3,12 @@
 
 ## תרגיל (מה לעשות ב-index.html ו-style.css)
 
-1. פתחו את `index.html` וודאו שיש קישור חוקי ל-`style.css` (תגית `<link>` בתוך `<head>`).
-2. ב-`style.css` עצבו את האלמנטים הבאים:
-   - `#test-worker` (span) צריך `display: inline-block` ובעל רוחב וגובה 40px.
-   - `.enemy` צריך להיות עגול (`border-radius: 50%`).
-   - `#boss` צריך להיות 80x80px.
-3. פתחו את הדף בדפדפן ולחצו על "הפעל את הזירה"; תקנו את השגיאות עד שהמשחק מתחיל.
+1. פתחו את `index.html` בעורך טקסט.
+2. ודאו שיש קישור חוקי ל-`style.css` (תגית `<link>` בתוך `<head>`).
+3. ב-`style.css`, קבעו ל-`#test-worker` `display: inline-block`.
+4. ב-`style.css`, קבעו ל-`#test-worker` רוחב (`width`) של 40px.
+5. ב-`style.css`, קבעו ל-`#test-worker` גובה (`height`) של 40px.
+6. ב-`style.css`, קבעו ל-`.enemy` `border-radius: 50%`.
+7. ב-`style.css`, קבעו ל-`#boss` רוחב (`width`) של 80px.
+8. ב-`style.css`, קבעו ל-`#boss` גובה (`height`) של 80px.
+9. פתחו את הדף בדפדפן ולחצו על "הפעל את הזירה"; תקנו את השגיאות עד שהמשחק מתחיל.
