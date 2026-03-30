@@ -68,19 +68,7 @@ function createCard({ pairId, language, word }) {
 
     card.innerHTML = `
         <span class="card-inner">
-            <span class="card-face card-back" aria-hidden="true">
-                <span class="brand-tab"></span>
-                <span class="brand-shell">
-                    <span class="brand-ring"></span>
-                    <img
-                        class="brand-logo"
-                        src="mpg-logo.png"
-                        alt=""
-                    />
-                    <span class="brand-title">MPG</span>
-                    <span class="brand-subtitle">English Memory Card</span>
-                </span>
-            </span>
+            <span class="card-face card-back" aria-hidden="true"></span>
             <span class="card-face card-front" data-language="${language}">
                 <span class="card-language">${language === 'english' ? 'English' : 'עברית'}</span>
                 <span class="card-word" lang="${language === 'english' ? 'en' : 'he'}">${word}</span>
@@ -200,17 +188,16 @@ function renderBoard() {
 
     const deck = buildDeck(pairCount)
     const columns = pairCount >= 20 ? 6 : pairCount >= 12 ? 4 : pairCount >= 8 ? 4 : 3
-    memoryBoard.style.setProperty('--board-columns', columns)
+    memoryBoard.style.gridTemplateColumns = `repeat(${columns}, 1fr)`
 
     deck.forEach(card => {
         memoryBoard.append(card)
     })
 
     updateStats()
-    setStatus('הלוח מוכן. הפכו כרטיס באנגלית וכרטיס בעברית כדי למצוא זוג.')
+    setStatus('🎯 הלוח מוכן! הפכו כרטיס באנגלית וכרטיס בעברית כדי למצוא זוג.')
 }
 
-difficultySelect.addEventListener('change', renderBoard)
-restartButton.addEventListener('click', renderBoard)
-
 renderBoard()
+restartButton.addEventListener('click', renderBoard)
+difficultySelect.addEventListener('change', renderBoard)

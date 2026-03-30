@@ -7,67 +7,46 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <main class="app-shell">
-            <section class="hero">
-                <div class="hero-brand">
-                    <img
-                        class="hero-logo"
-                        src="mpg-logo.png"
-                        alt="לוגו מכללת MPG"
-                    />
-                    <div class="hero-text">
-                        <p class="eyebrow">English + Hebrew Vocabulary</p>
-                        <h1>משחק זיכרון למילים שחשוב להכיר לפני הקורס</h1>
-                        <p class="hero-copy">
-                            כל זוג כולל כרטיס אחד באנגלית וכרטיס אחד בעברית.
-                            הופכים, מוצאים התאמות, ומתרגלים את המילים בדרך
-                            כיפית.
-                        </p>
-                    </div>
-                </div>
-            </section>
+        <div class="container">
+            <header class="header">
+                <h1>🎮 משחק זיכרון - אנגלית עברית</h1>
+                <p class="subtitle">תוצאות שחקן</p>
+            </header>
 
-            <section class="controls-panel" aria-label="הגדרות משחק">
-                <label class="control">
-                    <span>רמת משחק</span>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="difficulty">רמת משחק:</label>
                     <select id="difficulty">
                         <option value="6">קל - 6 זוגות</option>
                         <option value="8" selected>בינוני - 8 זוגות</option>
                         <option value="12">מאתגר - 12 זוגות</option>
                         <option value="26">מלא - כל המילים</option>
                     </select>
-                </label>
+                </div>
+                <button id="restartButton" class="btn-restart">🔄 ערבוב חדש</button>
+            </div>
 
-                <button id="restartButton" class="primary-button" type="button">
-                    ערבוב חדש
-                </button>
-            </section>
-
-            <section class="stats-panel" aria-label="סטטיסטיקות">
-                <div class="stat-card">
+            <div class="stats">
+                <div class="stat">
                     <span class="stat-label">מהלכים</span>
-                    <strong id="movesValue">0</strong>
+                    <span class="stat-value" id="movesValue">0</span>
                 </div>
-                <div class="stat-card">
+                <div class="stat">
                     <span class="stat-label">זוגות שנמצאו</span>
-                    <strong id="matchesValue">0</strong>
+                    <span class="stat-value" id="matchesValue">0</span>
                 </div>
-                <div class="stat-card">
+                <div class="stat">
                     <span class="stat-label">זוגות שנותרו</span>
-                    <strong id="remainingValue">0</strong>
+                    <span class="stat-value" id="remainingValue">0</span>
                 </div>
-            </section>
+            </div>
 
-            <p id="statusMessage" class="status-message" aria-live="polite">
-                בחרו שני כרטיסים ונסו לחבר בין המילה באנגלית לתרגום שלה.
+            <p id="statusMessage" class="status-message">
+                בואו נתחיל! לחצו על כרטיס כדי להפוך אותו.
             </p>
 
-            <section
-                id="memoryBoard"
-                class="memory-board"
-                aria-label="לוח משחק זיכרון"
-            ></section>
-        </main>
+            <div id="memoryBoard" class="memory-board" aria-label="לוח משחק זיכרון"></div>
+        </div>
 
         <script src="script.js"></script>
     </body>

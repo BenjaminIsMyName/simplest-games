@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MPG GameZone - פרוגיקס</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <img class="logo-img" src="mpg-logo.png" alt="MPG Logo" />
+    <div>
+      <div class="logo">MPG GameZone</div>
+      <div class="sublogo">פרוגיקס - אזור המשחקים של תלמידי MPG</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="intro">
+      <h1>ברוכים הבאים ל-MPG GameZone!</h1>
+      <p>באתר הזה תמצאו משחקים חינוכיים לתרגול אנגלית, הקלדה וכל מה שנוסיף בהמשך.</p>
+      <p>בשלב הראשון יש כאן שני משחקים מוצעים. בהמשך נוסיף עוד במשחקים חדשים ומעודכנים.</p>
+    </section>
+
+    <!--
+    <section class="auth-panel" id="authPanel">
+      <div class="card">
+        <h2>התחברות / הרשמה</h2>
+        <p>הכנס שם משתמש וסיסמה כדי לשמור ניקוד.</p>
+        <form id="authForm">
+          <label for="username">שם משתמש</label>
+          <input id="username" name="username" required />
+
+          <label for="password">סיסמה</label>
+          <input id="password" name="password" type="password" required />
+
+          <div class="action-row">
+            <button type="submit" id="loginBtn" class="btn">התחבר</button>
+            <button type="button" id="registerBtn" class="btn btn-secondary">הרשם</button>
+          </div>
+        </form>
+        <p class="info" id="authMessage"></p>
+      </div>
+    </section>
+
+    <section class="user-panel hidden" id="userPanel">
+      <h3>משתמש פעיל: <span id="currentUserName">-</span></h3>
+      <p>ניקוד נוכחי: <strong id="currentScore">0</strong></p>
+      <button class="btn btn-secondary" id="logoutBtn">יציאה</button>
+      <button class="btn" id="addPointsDemoBtn">קבל +5 נקודות (ניסוי)</button>
+    </section>
+    -->
+
+    <section class="info-panel">
+      <p style="background:#f5f3f4; padding: 10px; border-radius: 8px; color:#0f172a; text-align:center;">בשלב זה הבקרת התחברות מושבתת זמנית. המשך ישירות לבחירת משחק ולחיצה על "פתח משחק".</p>
+    </section>
+
+    <section class="games-grid">
+      <article class="game-card">
+        <h2>מילים באנגלית</h2>
+        <p>אלף מילים באנגלית בהנאה: זיהוי, משמעות ותרגולים קצרים.</p>
+        <a class="btn" data-base-href="../games/vocab-memory/index.html" href="../games/vocab-memory/index.html">פתח משחק</a>
+      </article>
+
+      <article class="game-card">
+        <h2>הקלדה עיוורת</h2>
+        <p>שפרו מהירות ודיוק בהקלדה עם תרגול מקשים באנגלית.</p>
+        <a class="btn" data-base-href="../games/typing/index.html" href="../games/typing/index.html">פתח משחק</a>
+      </article>
+
+      <article class="game-card">
+        <h2>זיכרון מילים</h2>
+        <p>התאמת מילים בעברית ובאנגלית, תרגול זיכרון וחיזוק אוצר מילים.</p>
+        <a class="btn" data-base-href="memory/index.html" href="memory/index.html">פתח משחק</a>
+      </article>
+    </section>
+
+    <section class="future">
+      <h3>עוד מגיע בקרוב</h3>
+      <ul>
+        <li>משחק זיכרון באנגלית</li>
+        <li>תחרות חשבון מהיר</li>
+        <li>חידון שאלות ידע כללי</li>
+      </ul>
+    </section>
+
+    <footer class="footer">
+      <p>© MPG GameZone - פרוגיקס 2026. כל הזכויות שמורות.</p>
+    </footer>
+  </main>
+
+  <script>
+    const STORAGE_USERS = 'mpg_gamezone_users';
+    const STORAGE_CUR_USER = 'mpg_gamezone_current';
+
+    const authMessage = document.getElementById('authMessage');
+    const authForm = document.getElementById('authForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userPanel = document.getElementById('userPanel');
+    const authPanel = document.getElementById('authPanel');
+    const currentUserName = document.getElementById('currentUserName');
+    const currentScore = document.getElementById('currentScore');
+    const addPointsDemoBtn = document.getElementById('addPointsDemoBtn');
+
+    function loadUsers() {
+      return JSON.parse(localStorage.getItem(STORAGE_USERS) || '{}');
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+    }
+
+    function getCurrentUser() {
+      return localStorage.getItem(STORAGE_CUR_USER);
+    }
+
+    function setCurrentUser(username) {
+      localStorage.setItem(STORAGE_CUR_USER, username);
+    }
+
+    function clearCurrentUser() {
+      localStorage.removeItem(STORAGE_CUR_USER);
+    }
+
+    function showMessage(text, isError = false) {
+      authMessage.textContent = text;
+      authMessage.style.color = isError ? '#f87171' : '#34d399';
+    }
+
+    function setGamesEnabled(isEnabled) {
+      document.querySelectorAll('.games-grid .btn').forEach((btn) => {
+        if (isEnabled) {
+          btn.classList.remove('disabled');
+          btn.removeAttribute('aria-disabled');
+        } else {
+          btn.classList.add('disabled');
+          btn.setAttribute('aria-disabled', 'true');
+        }
+      });
+    }
+
+    function gameClickHandler(event) {
+      addPoints(10); // נקודות אוטומטיות על פתיחת משחק
+      // אין עצירה, כיוון שהמשחק פתוח לכל המשתמשים (כולל אורחים).
+    }
+
+    function setGameLinks(username) {
+      document.querySelectorAll('.games-grid .btn[data-base-href]').forEach(btn => {
+        btn.href = btn.dataset.baseHref; // לא מוסיפים פרמטרי משתמש בינתיים
+      });
+    }
+
+    function updateUIForUser(username) {
+      // מבטל בדיקות התחברות זמנית,
+      // מאפשר פתיחת משחקים ללא צורך בהרשמה.
+      setGamesEnabled(true);
+      setGameLinks('');
+    }
+
+    function addPoints(amount) {
+      const username = getCurrentUser();
+      if (!username) return;
+      const users = loadUsers();
+      users[username].score = (users[username].score || 0) + amount;
+      saveUsers(users);
+      currentScore.textContent = users[username].score;
+      showMessage(`נוספו ${amount} נקודות!`, false);
+    }
+
+    if (authForm) {
+      authForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        if (!username || !password) {
+          showMessage('יש למלא שם משתמש וסיסמה', true);
+          return;
+        }
+
+        const users = loadUsers();
+        if (!users[username] || users[username].password !== password) {
+          showMessage('שם משתמש/סיסמה לא נכונים', true);
+          return;
+        }
+
+        setCurrentUser(username);
+        updateUIForUser(username);
+        showMessage(`התחברת בהצלחה כ-${username}`);
+      });
+    }
+
+    if (registerBtn) {
+      registerBtn.addEventListener('click', function () {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        if (!username || !password) {
+          showMessage('יש למלא שם משתמש וסיסמה להרשמה', true);
+          return;
+        }
+        const users = loadUsers();
+        if (users[username]) {
+          showMessage('השם משתמש כבר קיים, בחר שם אחר', true);
+          return;
+        }
+        users[username] = { password, score: 0 };
+        saveUsers(users);
+        setCurrentUser(username);
+        updateUIForUser(username);
+        showMessage(`נרשמת בהצלחה כ-${username}`);
+      });
+    }
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function () {
+        clearCurrentUser();
+        updateUIForUser(null);
+        showMessage('התנתקת');
+      });
+    }
+
+    if (addPointsDemoBtn) {
+      addPointsDemoBtn.addEventListener('click', function () {
+        addPoints(5);
+      });
+    }
+
+    // אתחול מצב משחקים בהתאם אם יש משתמש מחובר
+    document.querySelectorAll('.games-grid .btn').forEach(btn => {
+      btn.addEventListener('click', gameClickHandler);
+    });
+
+    const initialUser = getCurrentUser();
+    updateUIForUser(initialUser);
+  </script>
+</body>
+</html>

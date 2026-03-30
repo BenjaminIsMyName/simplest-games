@@ -4,24 +4,134 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
+        <title>Simplest Games</title>
         <style>
-            .game {
-                background-color: whitesmoke;
-                padding: 10px;
-                box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.1);
+            :root {
+                --bg-top: #eef2ff;
+                --bg-bottom: #cfd9ff;
+                --text: #15214d;
+                --accent: #3f5fd8;
+                --accent-strong: #233a9c;
+                --muted: #52608a;
+                --shadow: 0 8px 24px rgba(22, 36, 92, 0.16);
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html, body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                min-height: 100vh;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                color: var(--text);
+                background:
+                    radial-gradient(circle at top right, rgba(255, 255, 255, 0.9), transparent 26%),
+                    linear-gradient(135deg, var(--bg-top), var(--bg-bottom));
+            }
+
+            h1 {
+                text-align: center;
+                font-size: 2.5rem;
+                margin: 40px 20px 10px;
+                color: var(--text);
+            }
+
+            h2 {
+                text-align: center;
+                font-size: 1.1rem;
+                color: var(--muted);
+                margin: 0 20px 40px;
+                font-weight: 500;
             }
 
             .games {
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 20px;
+                padding: 20px;
+                max-width: 1200px;
+                margin: 0 auto;
             }
+
+            .game {
+                background: rgba(255, 255, 255, 0.88);
+                border: 1px solid rgba(45, 66, 168, 0.14);
+                border-radius: 20px;
+                padding: 24px 20px;
+                box-shadow: var(--shadow);
+                backdrop-filter: blur(8px);
+                transition: all 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 12px;
+            }
+
+            .game:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 16px 32px rgba(22, 36, 92, 0.2);
+                border-color: rgba(45, 66, 168, 0.24);
+            }
+
+            .game p {
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--text);
+                line-height: 1.4;
+            }
+
             .game a {
-                display: block;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 text-decoration: none;
-                color: darkblue;
-                font-weight: bold;
+                color: white;
+                font-weight: 700;
+                min-height: 44px;
+                padding: 8px 24px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+                box-shadow: 0 4px 12px rgba(35, 58, 156, 0.24);
+                transition: all 0.2s ease;
+                margin-top: 8px;
+            }
+
+            .game a:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 16px rgba(35, 58, 156, 0.32);
+            }
+
+            .game a:active {
+                transform: translateY(0);
+            }
+
+            @media (max-width: 768px) {
+                h1 {
+                    font-size: 1.8rem;
+                    margin: 20px 10px 5px;
+                }
+
+                h2 {
+                    margin: 0 10px 20px;
+                }
+
+                .games {
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 16px;
+                    padding: 16px;
+                }
+
+                .game {
+                    padding: 16px 12px;
+                    border-radius: 16px;
+                }
             }
         </style>
     </head>

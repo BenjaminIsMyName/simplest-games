@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>משחק זיכרון - MPG GameZone</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --text: #f8fafc;
+      --accent: #38bdf8;
+      --accent2: #fbbf24;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      direction: rtl;
+      text-align: right;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 80%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .header h1 { margin: 0; font-size: clamp(1.7rem, 3.5vw, 2.2rem); }
+    .header a {
+      background: var(--accent);
+      color: #0f172a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .status-bar { margin: 14px 0; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .status-bar .score { font-size: 1.2rem; }
+
+    .difficulty-buttons {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 0.95rem;
+      color: #f8fafc;
+    }
+
+    .difficulty-btn {
+      background: #475569;
+      color: #f8fafc;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.2s ease;
+    }
+
+    .difficulty-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .difficulty-btn.active {
+      background: #2563eb;
+      border-color: #93c5fd;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    }
+
+    .board {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      justify-items: center;
+      margin-top: 12px;
+    }
+
+    .card {
+      width: 120px;
+      height: 160px;
+      background: var(--panel);
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,.35);
+      cursor: pointer;
+      perspective: 800px;
+      position: relative;
+    }
+
+    .card.flipped .inner,
+    .card.matched .inner {
+      transform: rotateY(180deg);
+      cursor: default;
+    }
+
+    .card .inner {
+      transition: transform 0.4s ease;
+      transform-style: preserve-3d;
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .card-side {
+      backface-visibility: hidden;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .front { background: #38bdf8; color: #0f172a; transform: rotateY(180deg); }
+    .back {
+      background: #334155;
+      color: #f8fafc;
+      background-image: url('../mpg-logo.png');
+      background-size: 60px 60px;
+      background-position: center 45%;
+      background-repeat: no-repeat;
+      text-indent: 9999px;
+      overflow: hidden;
+    }
+
+    .card.matched .front { background: #22c55e; color: #04281a; }
+
+    .message { margin-top: 14px; font-size: 1rem; color: #93c5fd; }
+
+    .btn {
+      margin-top: 12px;
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <h1>משחק זיכרון - MPG GameZone</h1>
+      <a href="../index.html">« חזרה לאזור המשחקים</a>
+    </div>
+
+    <div class="status-bar">
+      <div>משתמש: <span id="playerName">(לא מחובר)</span></div>
+      <div class="difficulty-buttons" id="difficultyButtons">
+        רמות קושי:
+        <button class="difficulty-btn" data-level="beginner">מתחיל (6 מילים)</button>
+        <button class="difficulty-btn" data-level="easy">קל (8 מילים)</button>
+        <button class="difficulty-btn" data-level="medium">בינוני (12 מילים)</button>
+        <button class="difficulty-btn" data-level="hard">קשה (כל המילים)</button>
+      </div>
+      <div class="score">נקודות: <span id="playerScore">0</span></div>
+    </div>
+
+    <div id="blocker" class="message">המשחק פתוח עכשיו לכל המשתמשים. בחר רמת קושי וגש ללוח.</div>
+    <div id="gameBoard" class="board" style="display:none;"></div>
+    <div id="controlArea" style="display:none;">
+      <button id="resetBtn" class="btn">התחל מחדש</button>
+      <span id="gameMessage" class="message"></span>
+    </div>
+  </div>
+
+  <script>
+    const urlUser = new URLSearchParams(window.location.search).get('user');
+    let currentUser = urlUser || localStorage.getItem('mpg_gamezone_current');
+    const users = JSON.parse(localStorage.getItem('mpg_gamezone_users') || '{}');
+
+    if (urlUser) {
+      localStorage.setItem('mpg_gamezone_current', urlUser);
+    }
+
+    let activeUser = currentUser;
+
+    if (currentUser && users && !users[currentUser]) {
+      const matched = Object.keys(users).find(u => u.toLowerCase() === currentUser.toLowerCase());
+      if (matched) {
+        activeUser = matched;
+        currentUser = matched;
+        localStorage.setItem('mpg_gamezone_current', matched);
+      }
+    }
+
+    const playerName = document.getElementById('playerName');
+    const playerScore = document.getElementById('playerScore');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const blocker = document.getElementById('blocker');
+    const gameBoard = document.getElementById('gameBoard');
+    const controlArea = document.getElementById('controlArea');
+    const gameMessage = document.getElementById('gameMessage');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const levelMapping = {
+      beginner: { pairs: 6, matchPoints: 10, winBonus: 40 },
+      easy: { pairs: 8, matchPoints: 10, winBonus: 60 },
+      medium: { pairs: 12, matchPoints: 15, winBonus: 120 },
+      hard: { pairs: 0, matchPoints: 20, winBonus: 200 }
+    };
+
+    let currentLevel = localStorage.getItem('mpg_memory_level') || 'easy';
+    const difficultyButtonsArea = document.getElementById('difficultyButtons');
+    function highlightDifficultyButtons() {
+      document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.level === currentLevel);
+      });
+    }
+    highlightDifficultyButtons();
+
+    playerName.textContent = activeUser && users[activeUser] ? activeUser : 'אורח';
+    playerScore.textContent = activeUser && users[activeUser] ? users[activeUser].score || 0 : 0;
+    blocker.textContent = 'משחק זמין לכל השחקנים! בחר רמת קושי וגש לפתיחת המשחק.';
+    blocker.style.color = '#38bdf8';
+    gameBoard.style.display = 'grid';
+    controlArea.style.display = 'block';
+
+    const words = [
+      {key:'File', value:'קובץ', info:'מסמך או קובץ נתונים במחשב'},
+      {key:'Folder', value:'תיקייה', info:'מיכל המאחסן קבצים'},
+      {key:'Open', value:'פתח', info:'פתיחת קובץ או תוכנה'},
+      {key:'Save', value:'שמור', info:'שמירת עבודה על המחשב'},
+      {key:'Delete', value:'מחק', info:'הסרת קובץ, שורת קוד או נתון'},
+      {key:'Rename', value:'שנה שם', info:'נתינת שם חדש לקובץ או תיקייה'},
+      {key:'Copy', value:'העתק', info:'יצירת עותק של טקסט או קובץ'},
+      {key:'Paste', value:'הדבק', info:'הכנסת תוכן שהועתק למקום אחר'},
+      {key:'Run', value:'הרץ / הפעל', info:'הפעלת תכנית או קוד'},
+      {key:'Code', value:'קוד', info:'הוראות כתובות בשפת תכנות'},
+      {key:'Function', value:'פונקציה', info:'בלוק קוד שמבצע משימה מסוימת'},
+      {key:'Number', value:'מספר', info:'ערך מספרי בקוד'},
+      {key:'If', value:'אם', info:'תנאי — הקוד מתבצע רק אם התנאי מתקיים'},
+      {key:'While', value:'כל עוד / בזמן ש', info:'לולאה שמתבצעת כל עוד תנאי מסוים מתקיים'},
+      {key:'Push', value:'דחוף / שלח', info:'שליחת קוד למאגר מרוחק (כמו GitHub)'},
+      {key:'Computer', value:'מחשב', info:'המכשיר עליו אנו כותבים ומריצים קוד'},
+      {key:'Repository', value:'מאגר / ריפוזיטורי', info:'מקום לאחסון פרויקט קוד (לרוב ב-Git)'},
+      {key:'Return', value:'החזר / החזרה', info:'פונקציה מחזירה ערך כתוצאה'},
+      {key:'Prompt', value:'הנחיה / פרומפט', info:'הוראה שניתנת למחשב או ל-AI'},
+      {key:'Agent', value:'סוכן', info:'תוכנית שפועלת באופן עצמאי לביצוע משימות'},
+      {key:'Element', value:'אלמנט', info:'רכיב בדף אינטרנט (כמו כפתור או תמונה)'},
+      {key:'Class', value:'מחלקה / קלאס', info:'תבנית ליצירת אובייקטים בתכנות'},
+      {key:'ID', value:'מזהה', info:'שם ייחודי לאלמנט בדף'},
+      {key:'Style', value:'עיצוב / סגנון', info:'הגדרות הופעה חזותית של אלמנט'},
+      {key:'Click', value:'לחיצה / לחץ', info:'פעולת לחיצה על עכבר או כפתור'},
+      {key:'Error', value:'שגיאה', info:'הודעה שמציינת שמשהו בקוד לא עבד'}
+    ];
+
+    class MemoryGameEngine {
+      constructor(words) {
+        this.words = words;
+        this.level = currentLevel;
+        this.matches = 0;
+        this.firstCard = null;
+        this.secondCard = null;
+        this.lockBoard = false;
+        this.deck = [];
+        this.setLevel(this.level);
+      }
+
+      shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      setLevel(level) {
+        this.level = level;
+        const baseMap = {
+          beginner: { pairs: 6, matchPoints: 10, winBonus: 40 },
+          easy: { pairs: 8, matchPoints: 10, winBonus: 60 },
+          medium: { pairs: 12, matchPoints: 15, winBonus: 120 },
+          hard: { pairs: this.words.length, matchPoints: 20, winBonus: 200 }
+        };
+        this.config = baseMap[level] || baseMap.easy;
+        this.reset();
+      }
+
+      reset() {
+        this.matches = 0;
+        this.firstCard = null;
+        this.secondCard = null;
+        this.lockBoard = false;
+        this.buildDeck();
+      }
+
+      buildDeck() {
+        const chosenWords = this.shuffle([...this.words]).slice(0, this.config.pairs);
+        this.deck = this.shuffle(chosenWords.flatMap(word => [
+          { id: `${word.key}-en`, pair: word.key, lang: 'en', text: word.key, flipped: false, matched: false },
+          { id: `${word.key}-he`, pair: word.key, lang: 'he', text: word.value, flipped: false, matched: false }
+        ]));
+      }
+
+      getCard(cardId) {
+        return this.deck.find(c => c.id === cardId);
+      }
+
+      flip(cardId) {
+        if (this.lockBoard) return null;
+        const card = this.getCard(cardId);
+        if (!card || card.flipped || card.matched) return null;
+
+        card.flipped = true;
+
+        if (!this.firstCard) {
+          this.firstCard = card;
+          return { status: 'first' };
+        }
+
+        this.secondCard = card;
+
+        const isPairMatch = this.firstCard.pair === this.secondCard.pair;
+        const isLanguageDiff = this.firstCard.lang !== this.secondCard.lang;
+
+        if (isPairMatch && isLanguageDiff) {
+          this.firstCard.matched = true;
+          this.secondCard.matched = true;
+          this.matches += 1;
+          const finished = this.matches === this.config.pairs;
+          const matchedWord = this.words.find(w => w.key === this.firstCard.pair);
+          const infoText = matchedWord && matchedWord.info ? ` - ${matchedWord.info}` : '';
+          this.firstCard = null;
+          this.secondCard = null;
+          return {
+            status: 'match',
+            matchPoints: this.config.matchPoints,
+            winBonus: finished ? this.config.winBonus : 0,
+            infoText,
+            finished
+          };
+        }
+
+        this.lockBoard = true;
+        return { status: 'mismatch', cardA: this.firstCard.id, cardB: this.secondCard.id };
+      }
+
+      clearInvalidSelection() {
+        if (this.firstCard) this.firstCard.flipped = false;
+        if (this.secondCard) this.secondCard.flipped = false;
+        this.firstCard = null;
+        this.secondCard = null;
+        this.lockBoard = false;
+      }
+    }
+
+    const gameEngine = new MemoryGameEngine(words);
+
+    function renderBoard() {
+      gameBoard.innerHTML = '';
+      gameEngine.deck.forEach(card => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card' + (card.flipped ? ' flipped' : '') + (card.matched ? ' matched' : '');
+        cardEl.dataset.id = card.id;
+
+        const inner = document.createElement('div');
+        inner.className = 'inner';
+
+        const back = document.createElement('div');
+        back.className = 'card-side back';
+        back.textContent = 'MPG';
+
+        const front = document.createElement('div');
+        front.className = 'card-side front';
+        front.textContent = card.text;
+
+        inner.append(back, front);
+        cardEl.appendChild(inner);
+
+        cardEl.addEventListener('click', onCardClick);
+        gameBoard.appendChild(cardEl);
+      });
+      gameMessage.textContent = 'מצא זוגות תואמים כדי לזכות בנקודות!';
+    }
+
+    function onCardClick(event) {
+      const cardId = event.currentTarget.dataset.id;
+      const result = gameEngine.flip(cardId);
+      if (!result) return;
+
+      if (result.status === 'first') {
+        gameMessage.textContent = 'בחר קלף נוסף';
+        return;
+      }
+
+      if (result.status === 'match') {
+        awardPoints(result.matchPoints);
+        if (result.finished) {
+          awardPoints(result.winBonus);
+          gameMessage.textContent = `כל הזוגות נמצאו! +${result.winBonus} בונוס`;
+        } else {
+          gameMessage.textContent = `זוג תואם! +${result.matchPoints} נקודות${result.infoText}`;
+        }
+        renderBoard();
+        return;
+      }
+
+      if (result.status === 'mismatch') {
+        gameMessage.textContent = 'לא תואם, נסו שוב';
+        renderBoard();
+        setTimeout(() => {
+          gameEngine.clearInvalidSelection();
+          renderBoard();
+        }, 900);
+      }
+    }
+
+    function awardPoints(points) {
+      if (!activeUser || !users[activeUser]) {
+        gameMessage.textContent = `אין משתמש מחובר. ${points} נקודות לא ישמרו (משחק אורח).`;
+        return;
+      }
+      users[activeUser].score = (users[activeUser].score || 0) + points;
+      localStorage.setItem('mpg_gamezone_users', JSON.stringify(users));
+      playerScore.textContent = users[activeUser].score;
+    }
+
+    difficultyButtonsArea.addEventListener('click', function (event) {
+      const btn = event.target.closest('.difficulty-btn');
+      if (!btn) return;
+      currentLevel = btn.dataset.level;
+      localStorage.setItem('mpg_memory_level', currentLevel);
+      highlightDifficultyButtons();
+      gameEngine.setLevel(currentLevel);
+      renderBoard();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      gameEngine.reset();
+      renderBoard();
+    });
+
+    renderBoard();
+  </script>
+</body>
+</html>
