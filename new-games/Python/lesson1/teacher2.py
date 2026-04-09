@@ -630,7 +630,7 @@ def main():
         upgrades_system.score_spent = 0
         enemies_to_spawn = 6
         spawned_this_wave = 0
-        last_spawn = 0
+        last_spawn = now
         wave_banner_until = pygame.time.get_ticks() + 1800
         state = "playing"
 
