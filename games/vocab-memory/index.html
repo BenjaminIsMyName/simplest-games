@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>משחק זיכרון למילים באנגלית</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="container">
+            <header class="header">
+                <h1>🎮 משחק זיכרון - אנגלית עברית</h1>
+                <p class="subtitle">תוצאות שחקן</p>
+            </header>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="difficulty">רמת משחק:</label>
+                    <select id="difficulty">
+                        <option value="6">קל - 6 זוגות</option>
+                        <option value="8" selected>בינוני - 8 זוגות</option>
+                        <option value="12">מאתגר - 12 זוגות</option>
+                        <option value="26">מלא - כל המילים</option>
+                    </select>
+                </div>
+                <button id="restartButton" class="btn-restart">🔄 ערבוב חדש</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">מהלכים</span>
+                    <span class="stat-value" id="movesValue">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">זוגות שנמצאו</span>
+                    <span class="stat-value" id="matchesValue">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">זוגות שנותרו</span>
+                    <span class="stat-value" id="remainingValue">0</span>
+                </div>
+            </div>
+
+            <p id="statusMessage" class="status-message">
+                בואו נתחיל! לחצו על כרטיס כדי להפוך אותו.
+            </p>
+
+            <div id="memoryBoard" class="memory-board" aria-label="לוח משחק זיכרון"></div>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>
