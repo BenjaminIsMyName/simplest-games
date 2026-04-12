@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  --RTL: 1;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Heebo', 'Be Vietnam Pro', sans-serif;
+  background-color: #f9f9f9;
+  background-image: radial-gradient(#e2e2e2 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: #1a1c1c;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', 'Heebo', sans-serif;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.click-bounce:active {
+  transform: scale(0.95);
+}
+
+.paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+}
+
+.keyboard-key {
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.keyboard-key:active {
+  transform: translateY(4px);
+  box-shadow: none !important;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

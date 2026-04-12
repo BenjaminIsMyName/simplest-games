@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="mpgTitle mpgDesc">
+  <title id="mpgTitle">MPG Logo</title>
+  <desc id="mpgDesc">Blue circular logo with the letters MPG in white.</desc>
+  <defs>
+    <linearGradient id="mpgGradient" x1="96" x2="416" y1="64" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#78a2ff" />
+      <stop offset="0.4" stop-color="#4765db" />
+      <stop offset="1" stop-color="#2d2fc6" />
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="url(#mpgGradient)" />
+  <path fill="#fff" d="M48 183h46l38 66 52-66h152c23 0 38 5 48 15l-17 30c-7-6-16-9-31-9H212l-5 9h107c15 0 28 3 38 10l-18 32c-6-4-12-6-23-6H189v96h-47V255l-11 14h-14l-23-41v132H48V183Z" />
+  <path fill="#fff" d="M297 264h117c28 0 45 17 45 43 0 32-24 53-63 53h-73v-34h66c14 0 23-6 23-17 0-8-7-13-18-13h-97V264Z" />
+  <path fill="#fff" d="M456 223h-47c-12 0-23 7-28 18l-19 34-39-20 24-43c14-25 38-39 67-39h79l-18 34h-19Z" />
