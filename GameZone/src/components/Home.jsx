@@ -68,7 +68,7 @@ export const Home = () => {
           <p className="text-on-surface-variant text-xl">כל משחק תורם לניקוד, לרצף ולהתקדמות האישית שלכם</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-10">
           <button
             onClick={() => navigate('/games/memory')}
             className="group bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_8px_0_0_#eeeeee] border-2 border-transparent hover:border-primary/20 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden rotate-1 text-left"
@@ -110,23 +110,43 @@ export const Home = () => {
           </button>
 
           <button
-            onClick={() => navigate('/leaderboard')}
+            onClick={() => navigate('/games/robot-maze')}
             className="group bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_8px_0_0_#eeeeee] border-2 border-transparent hover:border-tertiary/20 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden rotate-2 text-left"
           >
             <div className="bg-tertiary-container w-20 h-20 rounded-xl flex items-center justify-center mb-8 rotate-[-4deg] group-hover:rotate-0 transition-transform">
               <span className="material-symbols-outlined text-tertiary text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                military_tech
+                smart_toy
               </span>
             </div>
-            <h3 className="text-2xl font-black text-on-surface mb-3">האלופים של פרוגיקס</h3>
-            <p className="text-on-surface-variant leading-relaxed font-medium">רואים מי התלמידים המובילים, מי צברו הכי הרבה נקודות ומי שומרים על רצף מעולה.</p>
+            <h3 className="text-2xl font-black text-on-surface mb-3">מבוך רובוט</h3>
+            <p className="text-on-surface-variant leading-relaxed font-medium">מתכננים מסלול, מסדרים פקודות ועוזרים לרובוט להגיע למטרה בלי לפגוש קירות.</p>
             <div className="mt-8">
               <span className="text-tertiary font-bold flex items-center gap-2">
-                לטבלה
+                למשחק
                 <span className="material-symbols-outlined">arrow_back</span>
               </span>
             </div>
             <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-tertiary/5 rounded-full blur-2xl" />
+          </button>
+
+          <button
+            onClick={() => navigate('/games/step-order')}
+            className="group bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_8px_0_0_#eeeeee] border-2 border-transparent hover:border-primary/20 hover:-translate-y-2 transition-all duration-300 relative overflow-hidden -rotate-2 text-left"
+          >
+            <div className="bg-primary-container w-20 h-20 rounded-xl flex items-center justify-center mb-8 rotate-[4deg] group-hover:rotate-0 transition-transform">
+              <span className="material-symbols-outlined text-primary text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                format_list_numbered
+              </span>
+            </div>
+            <h3 className="text-2xl font-black text-on-surface mb-3">סדר צעדים</h3>
+            <p className="text-on-surface-variant leading-relaxed font-medium">מסדרים משימות מחיי היום יום והמחשב לפי הסדר הנכון, ומתרגלים חשיבה אלגוריתמית בלי לכתוב קוד.</p>
+            <div className="mt-8">
+              <span className="text-primary font-bold flex items-center gap-2">
+                למשחק
+                <span className="material-symbols-outlined">arrow_back</span>
+              </span>
+            </div>
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl" />
           </button>
         </div>
       </section>

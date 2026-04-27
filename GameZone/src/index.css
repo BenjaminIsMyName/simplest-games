@@ -49,6 +49,28 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: none !important;
 }
 
+@keyframes step-order-confetti {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0) rotate(0deg) scale(0.68);
+  }
+  10% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 1;
+    transform: translate3d(calc(var(--confetti-drift, 0px) * 0.45), calc(var(--confetti-drop, 170px) * 0.42), 0)
+      rotate(calc(var(--confetti-rotate, 180deg) * 0.45)) scale(1.04);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift, 0px), var(--confetti-drop, 170px), 0) rotate(var(--confetti-rotate, 180deg)) scale(1);
+  }
+}
+
 #root {
   min-height: 100vh;
   display: flex;

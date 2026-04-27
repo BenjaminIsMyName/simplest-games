@@ -5,6 +5,8 @@ import { Home } from './components/Home';
 import { WeeklyChallenge } from './components/WeeklyChallenge';
 import { Leaderboard } from './components/Leaderboard';
 import { MemoryGame } from './components/MemoryGame';
+import { RobotMazeGame } from './components/RobotMazeGame';
+import { StepOrderGame } from './components/StepOrderGame';
 import { TouchTypingGame } from './components/TouchTypingGame';
 
 function AppShell() {
@@ -13,12 +15,14 @@ function AppShell() {
 
   return (
     <div className="flex flex-col min-h-screen bg-surface text-on-surface" dir="rtl">
-      <Header hideNavigation={isGameRoute} />
+      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/weekly-challenge" element={<WeeklyChallenge />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/games/memory" element={<MemoryGame />} />
+        <Route path="/games/robot-maze" element={<RobotMazeGame />} />
+        <Route path="/games/step-order" element={<StepOrderGame />} />
         <Route path="/games/touch-typing" element={<TouchTypingGame />} />
       </Routes>
       {!isGameRoute && <Footer />}

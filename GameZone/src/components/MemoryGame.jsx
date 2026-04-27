@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import mpgLogo from '../assets/mpg-logo.png';
+import { GameIntroOverlay } from './GameIntroOverlay';
+import { RewardConfetti } from './RewardConfetti';
 import { useAppData } from '../context/AppDataContext';
+import { buildConfettiBurst } from '../utils/confetti';
 
 const wordsList = [
   { key: 'File', value: 'קובץ', info: 'מסמך או אוסף נתונים שנשמרים במחשב.' },
@@ -30,6 +33,24 @@ const levelOptions = [
 ];
 
 const defaultMessage = 'מצאו זוגות תואמים כדי לצבור נקודות וללמוד מושגים חדשים.';
+
+const tutorialSteps = [
+  {
+    icon: 'tune',
+    title: 'בוחרים רמת קושי',
+    description: 'אפשר להתחיל מרמה קלה עם פחות קלפים, או לבחור רמה גבוהה יותר כדי לקבל אתגר וניקוד גבוה יותר.',
+  },
+  {
+    icon: 'style',
+    title: 'הופכים שני קלפים',
+    description: 'בכל תור הופכים שני קלפים ומנסים למצוא זוג נכון: מילה באנגלית והמילה שלה בעברית.',
+  },
+  {
+    icon: 'stars',
+    title: 'זוג נכון נותן ניקוד',
+    description: 'כל זוג תואם נותן נקודות וקונפטי קטן. אם מסיימים את כל הלוח מקבלים גם בונוס סיום.',
+  },
+];
 
 class MemoryGameEngine {
   constructor(words, level = 'easy') {
@@ -151,8 +172,11 @@ export const MemoryGame = () => {
   const [messageTone, setMessageTone] = useState('neutral');
   const [score, setScore] = useState(0);
   const [gameFinished, setGameFinished] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(true);
+  const [confettiBursts, setConfettiBursts] = useState([]);
   const syncedScoreRef = useRef(0);
   const sessionRecordedRef = useRef(false);
+  const confettiIdRef = useRef(0);
 
   const boardColumnsClass =
     currentLevel === 'beginner'
@@ -160,6 +184,15 @@ export const MemoryGame = () => {
       : currentLevel === 'easy'
         ? 'grid-cols-4 xl:grid-cols-6'
         : 'grid-cols-4 lg:grid-cols-6';
+
+  const launchConfetti = () => {
+    const burstId = confettiIdRef.current + 1;
+    confettiIdRef.current = burstId;
+    setConfettiBursts((current) => [...current, buildConfettiBurst(burstId)]);
+    window.setTimeout(() => {
+      setConfettiBursts((current) => current.filter((burst) => burst.id !== burstId));
+    }, 1900);
+  };
 
   const handleCardClick = (cardId) => {
     const result = gameEngine.flip(cardId);
@@ -173,6 +206,7 @@ export const MemoryGame = () => {
     }
 
     if (result.status === 'match') {
+      launchConfetti();
       const newScore = score + result.matchPoints;
 
       if (result.finished) {
@@ -243,7 +277,17 @@ export const MemoryGame = () => {
   }, [recordActivity, score]);
 
   return (
-    <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-3 md:px-6 md:py-4 flex flex-col gap-4">
+    <main className="flex-grow w-full max-w-7xl mx-auto px-4 py-3 md:px-6 md:py-4 flex flex-col gap-4 relative">
+      {showTutorial && (
+        <GameIntroOverlay
+          title="משחק הזיכרון"
+          subtitle="לפני שמתחילים, בואו נראה איך מוצאים זוגות וצוברים נקודות."
+          steps={tutorialSteps}
+          accent="primary"
+          onClose={() => setShowTutorial(false)}
+        />
+      )}
+      <RewardConfetti bursts={confettiBursts} />
       <section className="rounded-[2rem] bg-white/95 border border-white px-4 py-4 md:px-6 md:py-5 shadow-[0_12px_40px_rgba(15,23,42,0.08)]">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex items-center gap-2 rounded-full bg-surface-container-low px-4 py-2 shadow-sm self-start">

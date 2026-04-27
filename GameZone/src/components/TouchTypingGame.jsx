@@ -1,14 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GameIntroOverlay } from './GameIntroOverlay';
+import { RewardConfetti } from './RewardConfetti';
 import { useAppData } from '../context/AppDataContext';
+import { buildConfettiBurst } from '../utils/confetti';
 
-const keyboardRows = [
+const englishKeyboardRows = [
   ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
   ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
   ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
 ];
 
-const codingWords = [
+const hebrewKeyboardRows = [
+  ['ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ'],
+  ['ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך'],
+  ['ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ'],
+];
+
+const englishCodingWords = [
   'code',
   'debug',
   'loop',
@@ -35,112 +44,266 @@ const codingWords = [
   'variable',
 ];
 
-const lessons = [
-  {
-    id: 'fj-basics',
-    title: 'שיעור 1: F ו-J',
-    subtitle: 'מוצאים את שתי האותיות עם הבליטה ומתרגלים תנועה בטוחה.',
-    mode: 'letters',
-    keys: ['F', 'J'],
-    roundsRequired: 3,
-    sequenceLength: 10,
-    focusLabel: 'F / J',
-  },
-  {
-    id: 'dk-balance',
-    title: 'שיעור 2: D ו-K',
-    subtitle: 'מוסיפים עוד זוג למרכז כדי להרגיש את שורת הבית.',
-    mode: 'letters',
-    keys: ['F', 'J', 'D', 'K'],
-    roundsRequired: 3,
-    sequenceLength: 12,
-    focusLabel: 'D / K',
-  },
-  {
-    id: 'sl-expand',
-    title: 'שיעור 3: S ו-L',
-    subtitle: 'הידיים זזות צעד אחד לצדדים ועדיין נשארות רגועות.',
-    mode: 'letters',
-    keys: ['F', 'J', 'D', 'K', 'S', 'L'],
-    roundsRequired: 3,
-    sequenceLength: 14,
-    focusLabel: 'S / L',
-  },
-  {
-    id: 'home-row',
-    title: 'שיעור 4: כל שורת הבית',
-    subtitle: 'מכניסים גם A, G ו-H ומשלימים את מרכז המקלדת.',
-    mode: 'letters',
-    keys: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-    roundsRequired: 3,
-    sequenceLength: 16,
-    focusLabel: 'A / G / H',
-  },
-  {
-    id: 'top-row',
-    title: 'שיעור 5: עולים לשורה העליונה',
-    subtitle: 'מוסיפים את QWERTYUIOP ומתחילים להרגיש את כל האזור העליון.',
-    mode: 'letters',
-    keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-    roundsRequired: 3,
-    sequenceLength: 18,
-    focusLabel: 'Q / T / U / P',
-  },
-  {
-    id: 'bottom-row',
-    title: 'שיעור 6: השורה התחתונה',
-    subtitle: 'מוסיפים את ZXCVBNM ומכירים את כל האותיות במקלדת.',
-    mode: 'letters',
-    keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-    roundsRequired: 3,
-    sequenceLength: 20,
-    focusLabel: 'Z / X / C / V / B / N / M',
-  },
-  {
-    id: 'easy-coding-words',
-    title: 'שיעור 7: מילים קצרות של קוד',
-    subtitle: 'עוברים מאותיות בודדות למילים פשוטות מעולם התכנות.',
-    mode: 'words',
-    keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-    roundsRequired: 3,
-    wordPool: ['code', 'loop', 'debug', 'input', 'logic', 'react', 'class', 'stack'],
-    wordsPerRound: 3,
-    focusLabel: 'code / loop / debug',
-  },
-  {
-    id: 'medium-coding-words',
-    title: 'שיעור 8: מילים ארוכות יותר',
-    subtitle: 'מתאמנים על מושגים מרכזיים כמו array, string ו-return.',
-    mode: 'words',
-    keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-    roundsRequired: 3,
-    wordPool: ['array', 'value', 'string', 'return', 'object', 'method', 'state', 'script'],
-    wordsPerRound: 3,
-    focusLabel: 'array / string / return',
-  },
-  {
-    id: 'advanced-coding-words',
-    title: 'שיעור 9: מילים מתקדמות',
-    subtitle: 'מגיעים למושגים ארוכים יותר כמו function ו-variable.',
-    mode: 'words',
-    keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-    roundsRequired: 3,
-    wordPool: ['function', 'boolean', 'console', 'compile', 'syntax', 'python', 'binary', 'variable'],
-    wordsPerRound: 2,
-    focusLabel: 'function / variable / syntax',
-  },
-  {
-    id: 'coding-challenge',
-    title: 'שיעור 10: אתגר הקלדה',
-    subtitle: 'כאן כבר מקלידים רצפים מלאים של מושגי תכנות ונשארים מדויקים.',
-    mode: 'words',
-    keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
-    roundsRequired: 999,
-    wordPool: codingWords,
-    wordsPerRound: 4,
-    focusLabel: 'אתגר חופשי של מילים מעולם הקוד',
-  },
+const hebrewCodingWords = [
+  'קוד',
+  'באג',
+  'קלט',
+  'פלט',
+  'מסך',
+  'אתר',
+  'שרת',
+  'נתון',
+  'מערך',
+  'לולאה',
+  'רובוט',
+  'מחשב',
+  'תגובה',
+  'פונקציה',
+  'משתנה',
+  'מחלקה',
+  'תחביר',
+  'תנאי',
+  'מסוף',
+  'תיקון',
 ];
+
+const languageOptions = [
+  { id: 'english', label: 'אנגלית' },
+  { id: 'hebrew', label: 'עברית' },
+];
+
+const languageConfigs = {
+  english: {
+    id: 'english',
+    label: 'אנגלית',
+    keyboardLabel: 'אנגלית',
+    keyboardRows: englishKeyboardRows,
+    initialMessage: 'מתחילים מהבסיס. מוצאים את F ואת J ומקלידים ברוגע.',
+    restartMessage: 'מתחילים מחדש מהבסיס. קודם F ו-J, אחר כך כל השאר.',
+    unsupportedKeyMessage: 'במשחק הזה מתרגלים אותיות באנגלית ורווחים בין מילים.',
+    lessons: [
+      {
+        id: 'fj-basics',
+        title: 'שיעור 1: F ו-J',
+        subtitle: 'מוצאים את שתי האותיות עם הבליטות ומתרגלים תנועה בטוחה.',
+        mode: 'letters',
+        keys: ['F', 'J'],
+        roundsRequired: 3,
+        sequenceLength: 10,
+        focusLabel: 'F / J',
+      },
+      {
+        id: 'dk-balance',
+        title: 'שיעור 2: D ו-K',
+        subtitle: 'מוסיפים עוד זוג למרכז כדי להרגיש את שורת הבית.',
+        mode: 'letters',
+        keys: ['F', 'J', 'D', 'K'],
+        roundsRequired: 3,
+        sequenceLength: 12,
+        focusLabel: 'D / K',
+      },
+      {
+        id: 'sl-expand',
+        title: 'שיעור 3: S ו-L',
+        subtitle: 'הידיים זזות צעד אחד לצדדים ועדיין נשארות רגועות.',
+        mode: 'letters',
+        keys: ['F', 'J', 'D', 'K', 'S', 'L'],
+        roundsRequired: 3,
+        sequenceLength: 14,
+        focusLabel: 'S / L',
+      },
+      {
+        id: 'home-row',
+        title: 'שיעור 4: כל שורת הבית',
+        subtitle: 'מכניסים גם A, G ו-H ומשלימים את מרכז המקלדת.',
+        mode: 'letters',
+        keys: ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+        roundsRequired: 3,
+        sequenceLength: 16,
+        focusLabel: 'A / G / H',
+      },
+      {
+        id: 'top-row',
+        title: 'שיעור 5: עולים לשורה העליונה',
+        subtitle: 'מוסיפים את QWERTYUIOP ומתחילים להרגיש את כל האזור העליון.',
+        mode: 'letters',
+        keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+        roundsRequired: 3,
+        sequenceLength: 18,
+        focusLabel: 'Q / T / U / P',
+      },
+      {
+        id: 'bottom-row',
+        title: 'שיעור 6: השורה התחתונה',
+        subtitle: 'מוסיפים את ZXCVBNM ומכירים את כל האותיות במקלדת.',
+        mode: 'letters',
+        keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+        roundsRequired: 3,
+        sequenceLength: 20,
+        focusLabel: 'Z / X / C / V / B / N / M',
+      },
+      {
+        id: 'easy-coding-words',
+        title: 'שיעור 7: מילים קצרות של קוד',
+        subtitle: 'עוברים מאותיות בודדות למילים פשוטות מעולם התכנות.',
+        mode: 'words',
+        keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+        roundsRequired: 3,
+        wordPool: ['code', 'loop', 'debug', 'input', 'logic', 'react', 'class', 'stack'],
+        wordsPerRound: 3,
+        focusLabel: 'code / loop / debug',
+      },
+      {
+        id: 'medium-coding-words',
+        title: 'שיעור 8: מילים ארוכות יותר',
+        subtitle: 'מתאמנים על מושגים מרכזיים כמו array, string ו-return.',
+        mode: 'words',
+        keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+        roundsRequired: 3,
+        wordPool: ['array', 'value', 'string', 'return', 'object', 'method', 'state', 'script'],
+        wordsPerRound: 3,
+        focusLabel: 'array / string / return',
+      },
+      {
+        id: 'advanced-coding-words',
+        title: 'שיעור 9: מילים מתקדמות',
+        subtitle: 'מגיעים למושגים ארוכים יותר כמו function ו-variable.',
+        mode: 'words',
+        keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+        roundsRequired: 3,
+        wordPool: ['function', 'boolean', 'console', 'compile', 'syntax', 'python', 'binary', 'variable'],
+        wordsPerRound: 2,
+        focusLabel: 'function / variable / syntax',
+      },
+      {
+        id: 'coding-challenge',
+        title: 'שיעור 10: אתגר ההקלדה',
+        subtitle: 'כאן כבר מקלידים רצפים מלאים של מושגי תכנות ונשארים מדויקים.',
+        mode: 'words',
+        keys: ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+        roundsRequired: 999,
+        wordPool: englishCodingWords,
+        wordsPerRound: 4,
+        focusLabel: 'אתגר חופשי של מילים מעולם הקוד',
+      },
+    ],
+  },
+  hebrew: {
+    id: 'hebrew',
+    label: 'עברית',
+    keyboardLabel: 'עברית',
+    keyboardRows: hebrewKeyboardRows,
+    initialMessage: 'מתחילים מהבסיס. מוצאים את כ ואת ח ומקלידים ברוגע.',
+    restartMessage: 'מתחילים מחדש מהבסיס. קודם כ ו-ח, אחר כך כל השאר.',
+    unsupportedKeyMessage: 'במשחק הזה מתרגלים אותיות בעברית ורווחים בין מילים.',
+    lessons: [
+      {
+        id: 'kah-het-basics',
+        title: 'שיעור 1: כ ו-ח',
+        subtitle: 'מוצאים את שתי האותיות שבמרכז שורת הבית ומתרגלים תנועה בטוחה.',
+        mode: 'letters',
+        keys: ['כ', 'ח'],
+        roundsRequired: 3,
+        sequenceLength: 10,
+        focusLabel: 'כ / ח',
+      },
+      {
+        id: 'gimel-lamed',
+        title: 'שיעור 2: ג ו-ל',
+        subtitle: 'מוסיפים עוד זוג קרוב למרכז ומתחילים להרגיש את שורת הבית.',
+        mode: 'letters',
+        keys: ['כ', 'ח', 'ג', 'ל'],
+        roundsRequired: 3,
+        sequenceLength: 12,
+        focusLabel: 'ג / ל',
+      },
+      {
+        id: 'dalet-final-kaf',
+        title: 'שיעור 3: ד ו-ך',
+        subtitle: 'הידיים זזות עוד צעד קטן לצדדים ועדיין שומרות על קצב רגוע.',
+        mode: 'letters',
+        keys: ['כ', 'ח', 'ג', 'ל', 'ד', 'ך'],
+        roundsRequired: 3,
+        sequenceLength: 14,
+        focusLabel: 'ד / ך',
+      },
+      {
+        id: 'home-row-hebrew',
+        title: 'שיעור 4: כל שורת הבית',
+        subtitle: 'מכניסים גם ש, ע ו-י ומשלימים את מרכז המקלדת בעברית.',
+        mode: 'letters',
+        keys: ['ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך'],
+        roundsRequired: 3,
+        sequenceLength: 16,
+        focusLabel: 'ש / ע / י',
+      },
+      {
+        id: 'top-row-hebrew',
+        title: 'שיעור 5: עולים לשורה העליונה',
+        subtitle: 'מוסיפים את ק, ר, א, ט, ו, ן, ם, פ ומרחיבים את אזור התרגול.',
+        mode: 'letters',
+        keys: ['ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', 'ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך'],
+        roundsRequired: 3,
+        sequenceLength: 18,
+        focusLabel: 'ק / ט / ו / פ',
+      },
+      {
+        id: 'bottom-row-hebrew',
+        title: 'שיעור 6: השורה התחתונה',
+        subtitle: 'מוסיפים את ז, ס, ב, ה, נ, מ, צ ומכירים כמעט את כל המקלדת.',
+        mode: 'letters',
+        keys: ['ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', 'ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך', 'ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ'],
+        roundsRequired: 3,
+        sequenceLength: 20,
+        focusLabel: 'ז / ס / ב / ה / נ / מ / צ',
+      },
+      {
+        id: 'easy-hebrew-words',
+        title: 'שיעור 7: מילים קצרות',
+        subtitle: 'עוברים מאותיות בודדות למילים פשוטות מהעולם הדיגיטלי.',
+        mode: 'words',
+        keys: ['ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', 'ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך', 'ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ'],
+        roundsRequired: 3,
+        wordPool: ['קוד', 'באג', 'קלט', 'פלט', 'מסך', 'אתר', 'רובוט', 'מחשב'],
+        wordsPerRound: 3,
+        focusLabel: 'קוד / קלט / פלט',
+      },
+      {
+        id: 'medium-hebrew-words',
+        title: 'שיעור 8: מילים ארוכות יותר',
+        subtitle: 'מתאמנים על מושגים שימושיים כמו משתנה, מערך ותגובה.',
+        mode: 'words',
+        keys: ['ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', 'ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך', 'ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ'],
+        roundsRequired: 3,
+        wordPool: ['מערך', 'נתון', 'תגובה', 'שרת', 'לולאה', 'מסוף', 'תנאי', 'תחביר'],
+        wordsPerRound: 3,
+        focusLabel: 'מערך / תגובה / תנאי',
+      },
+      {
+        id: 'advanced-hebrew-words',
+        title: 'שיעור 9: מושגים מתקדמים',
+        subtitle: 'מגיעים למילים ארוכות יותר כמו פונקציה, מחלקה ומשתנה.',
+        mode: 'words',
+        keys: ['ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', 'ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך', 'ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ'],
+        roundsRequired: 3,
+        wordPool: ['פונקציה', 'משתנה', 'מחלקה', 'תחביר', 'תיקון', 'לולאה', 'מסוף', 'רובוט'],
+        wordsPerRound: 2,
+        focusLabel: 'פונקציה / משתנה / מחלקה',
+      },
+      {
+        id: 'hebrew-challenge',
+        title: 'שיעור 10: אתגר ההקלדה',
+        subtitle: 'כאן כבר מקלידים רצפים מלאים של מילים בעברית ושומרים על דיוק.',
+        mode: 'words',
+        keys: ['ק', 'ר', 'א', 'ט', 'ו', 'ן', 'ם', 'פ', 'ש', 'ד', 'ג', 'כ', 'ע', 'י', 'ח', 'ל', 'ך', 'ז', 'ס', 'ב', 'ה', 'נ', 'מ', 'צ'],
+        roundsRequired: 999,
+        wordPool: hebrewCodingWords,
+        wordsPerRound: 4,
+        focusLabel: 'אתגר חופשי של מילים בעברית',
+      },
+    ],
+  },
+};
 
 const buildLetterSequence = (keys, sequenceLength) => {
   const chars = [];
@@ -193,11 +356,69 @@ const getMessageToneClass = (tone) => {
     return 'bg-green-100 text-green-800 shadow-[0_0_0_1px_rgba(34,197,94,0.18)] animate-pulse';
   }
 
+  if (tone === 'keyboard-warning') {
+    return 'bg-rose-100 text-rose-800 shadow-[0_0_0_1px_rgba(244,63,94,0.18)] ring-2 ring-rose-200';
+  }
+
   if (tone === 'warning') {
     return 'bg-amber-100 text-amber-800';
   }
 
   return 'bg-primary-container/60 text-primary';
+};
+
+const buildTutorialSteps = (languageConfig) => [
+  {
+    icon: 'keyboard',
+    title: 'מסתכלים על האות המודגשת',
+    description: 'בכל רגע יש אות או רווח שצריך להקליד. המקלדת הוויזואלית וההדגשה הגדולה באמצע מראות בדיוק מה הבא בתור.',
+  },
+  {
+    icon: 'spellcheck',
+    title: 'משלימים שורת תרגול',
+    description: 'כשמסיימים את כל הרצף של האותיות או המילים, מקבלים נקודות, קונפטי קטן, וממשיכים לסבב הבא.',
+  },
+  {
+    icon: 'language',
+    title: `בודקים שהמקלדת על ${languageConfig.keyboardLabel}`,
+    description: `לפני שמתחילים, חשוב לוודא שהמקלדת במחשב על ${languageConfig.keyboardLabel}. אם היא על שפה אחרת המשחק יבקש להחליף.`,
+  },
+  {
+    icon: 'restart_alt',
+    title: 'טעות מתחילה את התרגול מחדש',
+    description: 'אם טועים מתחילים את השורה מחדש, ולכן חשוב להקליד לאט ובדיוק.',
+  },
+];
+
+const isHebrewCharacter = (value) => /[\u0590-\u05FF]/.test(value);
+const isEnglishCharacter = (value) => /^[A-Za-z]$/.test(value);
+
+const normalizeKeyByLanguage = (rawKey, language) => {
+  if (rawKey.length !== 1) {
+    return rawKey;
+  }
+
+  return language === 'english' ? rawKey.toUpperCase() : rawKey;
+};
+
+const isSupportedTypingKey = (rawKey, language) => {
+  if (rawKey === ' ') {
+    return true;
+  }
+
+  return language === 'english' ? isEnglishCharacter(rawKey) : isHebrewCharacter(rawKey);
+};
+
+const isWrongKeyboardKey = (rawKey, language) => {
+  return language === 'english' ? isHebrewCharacter(rawKey) : isEnglishCharacter(rawKey);
+};
+
+const getDisplayPromptChar = (char, language) => {
+  if (char === ' ') {
+    return '';
+  }
+
+  return language === 'english' ? char.toUpperCase() : char;
 };
 
 export const TouchTypingGame = () => {
@@ -206,12 +427,14 @@ export const TouchTypingGame = () => {
   const inputRef = useRef(null);
   const syncedScoreRef = useRef(0);
   const sessionRecordedRef = useRef(false);
+  const confettiIdRef = useRef(0);
 
+  const [selectedLanguage, setSelectedLanguage] = useState('english');
   const [lessonIndex, setLessonIndex] = useState(0);
   const [lessonRound, setLessonRound] = useState(0);
-  const [promptText, setPromptText] = useState(() => buildPromptForLesson(lessons[0]));
+  const [promptText, setPromptText] = useState(() => buildPromptForLesson(languageConfigs.english.lessons[0]));
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
-  const [message, setMessage] = useState('מתחילים מהבסיס. מוצאים את F ואת J ומקלידים ברוגע.');
+  const [message, setMessage] = useState(languageConfigs.english.initialMessage);
   const [messageTone, setMessageTone] = useState('neutral');
   const [typedValue, setTypedValue] = useState('');
   const [startedAt, setStartedAt] = useState(null);
@@ -220,10 +443,17 @@ export const TouchTypingGame = () => {
   const [totalKeys, setTotalKeys] = useState(0);
   const [score, setScore] = useState(0);
   const [completedRounds, setCompletedRounds] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(true);
+  const [confettiBursts, setConfettiBursts] = useState([]);
 
+  const languageConfig = languageConfigs[selectedLanguage];
+  const lessons = languageConfig.lessons;
+  const keyboardRows = languageConfig.keyboardRows;
+  const tutorialSteps = useMemo(() => buildTutorialSteps(languageConfig), [languageConfig]);
   const lesson = lessons[lessonIndex];
   const promptChars = useMemo(() => promptText.split(''), [promptText]);
   const expectedKey = promptChars[currentCharIndex] ?? promptChars[promptChars.length - 1] ?? '';
+  const displayedExpectedKey = getDisplayPromptChar(expectedKey, selectedLanguage);
   const accuracy = totalKeys === 0 ? 100 : Math.round((correctKeys / totalKeys) * 100);
   const wordsTyped = correctKeys / 5;
   const minutesPlayed = Math.max(elapsedSeconds / 60, 1 / 60);
@@ -245,7 +475,7 @@ export const TouchTypingGame = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, [lessonIndex, lessonRound, currentCharIndex]);
+  }, [selectedLanguage, lessonIndex, lessonRound, currentCharIndex]);
 
   useEffect(() => {
     if (score <= syncedScoreRef.current) {
@@ -264,6 +494,37 @@ export const TouchTypingGame = () => {
     sessionRecordedRef.current = true;
   }, [recordActivity, score, wpm]);
 
+  const launchConfetti = () => {
+    const burstId = confettiIdRef.current + 1;
+    confettiIdRef.current = burstId;
+    setConfettiBursts((current) => [...current, buildConfettiBurst(burstId)]);
+    window.setTimeout(() => {
+      setConfettiBursts((current) => current.filter((burst) => burst.id !== burstId));
+    }, 1900);
+  };
+
+  const resetGameState = (languageId = selectedLanguage) => {
+    const nextConfig = languageConfigs[languageId];
+    const nextLessons = nextConfig.lessons;
+
+    setLessonIndex(0);
+    setLessonRound(0);
+    setPromptText(buildPromptForLesson(nextLessons[0]));
+    setCurrentCharIndex(0);
+    setMessage(nextConfig.restartMessage);
+    setMessageTone('neutral');
+    setTypedValue('');
+    setStartedAt(null);
+    setElapsedSeconds(0);
+    setCorrectKeys(0);
+    setTotalKeys(0);
+    setScore(0);
+    setCompletedRounds(0);
+    syncedScoreRef.current = 0;
+    sessionRecordedRef.current = false;
+    inputRef.current?.focus();
+  };
+
   const startLessonRound = (nextLessonIndex, nextRound, customMessage, tone = 'success') => {
     const nextLesson = lessons[nextLessonIndex];
     setLessonIndex(nextLessonIndex);
@@ -281,35 +542,31 @@ export const TouchTypingGame = () => {
   };
 
   const restartGame = () => {
-    setLessonIndex(0);
-    setLessonRound(0);
-    setPromptText(buildPromptForLesson(lessons[0]));
-    setCurrentCharIndex(0);
-    setMessage('מתחילים מחדש מהבסיס. קודם F ו-J, אחר כך כל השאר.');
-    setMessageTone('neutral');
-    setTypedValue('');
-    setStartedAt(null);
-    setElapsedSeconds(0);
-    setCorrectKeys(0);
-    setTotalKeys(0);
-    setScore(0);
-    setCompletedRounds(0);
-    syncedScoreRef.current = 0;
-    sessionRecordedRef.current = false;
-    inputRef.current?.focus();
+    resetGameState(selectedLanguage);
+  };
+
+  const changeLanguage = (languageId) => {
+    if (languageId === selectedLanguage) {
+      return;
+    }
+
+    setSelectedLanguage(languageId);
+    setShowTutorial(true);
+    setConfettiBursts([]);
+    resetGameState(languageId);
   };
 
   const handleSuccessfulRound = () => {
+    launchConfetti();
     const roundBonus = lesson.mode === 'words' ? 30 : 20;
-    const updatedCompletedRounds = completedRounds + 1;
-    setCompletedRounds(updatedCompletedRounds);
+    setCompletedRounds((current) => current + 1);
     setScore((current) => current + roundBonus);
 
     if (lessonRound + 1 < lesson.roundsRequired) {
       startLessonRound(
         lessonIndex,
         lessonRound + 1,
-        `מעולה! סיימתם עוד סבב. ממשיכים לעוד תרגול באותו השלב.`,
+        'מעולה! סיימתם עוד סבב. ממשיכים לעוד תרגול באותו השלב.',
       );
       return;
     }
@@ -326,13 +583,13 @@ export const TouchTypingGame = () => {
     startLessonRound(
       lessonIndex,
       lessonRound,
-      'אלופים! סיימתם סבב אתגר נוסף. ממשיכים לעוד מילים מעולם התכנות.',
+      'אלופים! סיימתם עוד סבב אתגר. ממשיכים לעוד מילים ותרגול.',
     );
   };
 
   const handleKeyDown = (event) => {
     const rawKey = event.key;
-    const normalizedKey = rawKey.length === 1 ? rawKey.toUpperCase() : rawKey;
+    const normalizedKey = normalizeKeyByLanguage(rawKey, selectedLanguage);
 
     if (rawKey === 'Tab') {
       return;
@@ -340,11 +597,15 @@ export const TouchTypingGame = () => {
 
     event.preventDefault();
 
-    const isLetter = /^[A-Z]$/.test(normalizedKey);
-    const isSpace = rawKey === ' ';
+    if (isWrongKeyboardKey(rawKey, selectedLanguage)) {
+      setMessage(`יש לשנות את המקלדת ל${languageConfig.keyboardLabel} כדי להמשיך בתרגול.`);
+      setMessageTone('keyboard-warning');
+      window.setTimeout(() => setTypedValue(''), 120);
+      return;
+    }
 
-    if (!isLetter && !isSpace) {
-      setMessage('במשחק הזה מתרגלים אותיות באנגלית ורווחים בין מילים.');
+    if (!isSupportedTypingKey(rawKey, selectedLanguage)) {
+      setMessage(languageConfig.unsupportedKeyMessage);
       setMessageTone('warning');
       return;
     }
@@ -353,25 +614,25 @@ export const TouchTypingGame = () => {
       setStartedAt(Date.now());
     }
 
-    setTypedValue(isSpace ? 'space' : normalizedKey);
+    setTypedValue(rawKey === ' ' ? 'space' : normalizedKey);
     setTotalKeys((current) => current + 1);
 
-    const expectedNormalizedKey = expectedKey === ' ' ? ' ' : expectedKey.toUpperCase();
-    const typedKey = isSpace ? ' ' : normalizedKey;
+    const expectedNormalizedKey = normalizeKeyByLanguage(expectedKey, selectedLanguage);
+    const typedKey = rawKey === ' ' ? ' ' : normalizedKey;
 
     if (typedKey === expectedNormalizedKey) {
       const nextIndex = currentCharIndex + 1;
       setCorrectKeys((current) => current + 1);
-      setScore((current) => current + 5);
 
       if (nextIndex >= promptChars.length) {
         handleSuccessfulRound();
       } else {
+        const nextExpected = promptChars[nextIndex];
         setCurrentCharIndex(nextIndex);
         setMessage(
-          promptChars[nextIndex] === ' '
+          nextExpected === ' '
             ? 'נהדר! עכשיו לחצו על רווח.'
-            : `מצוין! ממשיכים עם האות ${promptChars[nextIndex].toUpperCase()}.`,
+            : `מצוין! ממשיכים עם האות ${getDisplayPromptChar(nextExpected, selectedLanguage)}.`,
         );
         setMessageTone('success');
       }
@@ -382,8 +643,8 @@ export const TouchTypingGame = () => {
 
     setMessage(
       expectedKey === ' '
-        ? 'אופס, כאן היה צריך רווח. מתחילים את המשימה מההתחלה, אבל שומרים על הנקודות.'
-        : `אופס, חיפשנו את ${expectedKey.toUpperCase()}. מתחילים את המשימה מההתחלה, אבל הנקודות נשמרות.`,
+        ? 'אופס, כאן היה צריך רווח. מתחילים את התרגול מההתחלה.'
+        : `אופס, חיפשנו את ${displayedExpectedKey}. מתחילים את התרגול מההתחלה.`,
     );
     setMessageTone('warning');
     restartCurrentPrompt();
@@ -392,6 +653,16 @@ export const TouchTypingGame = () => {
 
   return (
     <main className="flex-grow max-w-7xl mx-auto w-full px-4 md:px-6 py-3 md:py-4 flex flex-col gap-4 relative z-10 min-h-[calc(100vh-5.5rem)]">
+      {showTutorial && (
+        <GameIntroOverlay
+          title="הקלדה עיוורת"
+          subtitle="לפני שמתחילים לתרגל, הנה כמה צעדים קטנים שיעזרו להבין את המשחק."
+          steps={tutorialSteps}
+          accent="secondary"
+          onClose={() => setShowTutorial(false)}
+        />
+      )}
+      <RewardConfetti bursts={confettiBursts} />
       <div className="fixed inset-0 paper-grain pointer-events-none" />
 
       <section className="grid grid-cols-2 xl:grid-cols-4 gap-3">
@@ -427,13 +698,39 @@ export const TouchTypingGame = () => {
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-4 rounded-[1.5rem] shadow-[0_6px_0_0_rgba(0,97,164,0.08)] flex items-center justify-between border-2 border-primary/10">
-          <div className="flex flex-col">
-            <span className="text-sm font-bold text-slate-500">נקודות</span>
-            <span className="text-2xl xl:text-3xl font-black text-primary font-headline tracking-tight">{score}</span>
+        <div className="bg-surface-container-lowest p-4 rounded-[1.5rem] shadow-[0_6px_0_0_rgba(0,97,164,0.08)] flex flex-col gap-3 border-2 border-primary/10">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-500">נקודות</span>
+              <span className="text-2xl xl:text-3xl font-black text-primary font-headline tracking-tight">{score}</span>
+            </div>
+            <div className="w-10 h-10 xl:w-12 xl:h-12 bg-primary-container rounded-full flex items-center justify-center">
+              <span className="material-symbols-outlined text-primary text-2xl xl:text-3xl">stars</span>
+            </div>
           </div>
-          <div className="w-10 h-10 xl:w-12 xl:h-12 bg-primary-container rounded-full flex items-center justify-center">
-            <span className="material-symbols-outlined text-primary text-2xl xl:text-3xl">stars</span>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-bold text-slate-500">שפת תרגול</span>
+            <div className="grid grid-cols-2 gap-2">
+              {languageOptions.map((option) => {
+                const isActive = option.id === selectedLanguage;
+
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => changeLanguage(option.id)}
+                    className={`rounded-full px-3 py-2 text-sm font-bold transition-all ${
+                      isActive
+                        ? 'bg-primary text-white shadow-[0_4px_0_0_#00497d]'
+                        : 'bg-primary-container/55 text-primary hover:bg-primary-container'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -480,7 +777,7 @@ export const TouchTypingGame = () => {
                 אותיות התרגול עכשיו: {lesson.focusLabel}
               </div>
               <div className="rounded-full bg-white px-4 py-2 text-on-surface font-bold shadow-sm text-sm md:text-base">
-                טעות מחזירה להתחלת המשימה, אבל הנקודות נשמרות
+                טעות? מתחילים את התרגול מההתחלה
               </div>
             </div>
 
@@ -502,7 +799,7 @@ export const TouchTypingGame = () => {
                           : 'text-outline-variant'
                   }
                 >
-                  {char === ' ' ? '' : char}
+                  {getDisplayPromptChar(char, selectedLanguage)}
                 </span>
               ))}
             </div>
@@ -527,7 +824,7 @@ export const TouchTypingGame = () => {
                 {expectedKey === ' ' ? 'לחצו על מקש הרווח' : 'הקישו על האות'}
                 {expectedKey !== ' ' && (
                   <span className="text-2xl font-headline bg-secondary-container px-3 py-1 rounded-lg mx-2">
-                    {expectedKey.toUpperCase()}
+                    {displayedExpectedKey}
                   </span>
                 )}
               </span>
@@ -543,7 +840,7 @@ export const TouchTypingGame = () => {
                 className={`flex justify-center gap-2 ${rowIndex === 1 ? 'ml-4' : ''} ${rowIndex === 2 ? 'ml-8' : ''}`}
               >
                 {row.map((key) => {
-                  const isTarget = key === expectedKey.toUpperCase();
+                  const isTarget = key === displayedExpectedKey;
                   const isLessonKey = lesson.keys.includes(key);
 
                   return (
